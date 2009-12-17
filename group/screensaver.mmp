@@ -1,0 +1,124 @@
+/*
+* Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:  
+*     Project definition file
+*
+*/
+
+
+#include <bldvariant.hrh>
+#include <data_caging_paths.hrh>
+#include <platform_paths.hrh>
+#include "ScreensaverConfig.hrh"
+
+TARGET        screensaver.exe
+TARGETTYPE    exe
+UID           0x100039CE 0x100056CF
+
+VENDORID    VID_DEFAULT
+CAPABILITY  CAP_APPLICATION PowerMgmt
+
+#ifdef LOGGING_ENABLED
+MACRO USE_LOGGER
+#endif
+
+#ifdef ALWAYS_PORTRAIT
+MACRO SS_ALWAYSPORTRAIT
+#endif
+
+#ifdef ALWAYS_LANDSCAPE
+MACRO SS_ALWAYSLANDSCAPE
+#endif
+
+#ifdef FAST_STOP_ON_SCREENDEVICE_CHANGE
+MACRO SS_FASTSTOPONSCREENDEVICECHANGE
+#endif
+
+SOURCEPATH  ../src
+
+SOURCE      Screensaver.cpp
+SOURCE      screensaverview.cpp
+SOURCE      screensaverappui.cpp
+SOURCE      screensaverbase.cpp
+SOURCE      screensaverctrlnone.cpp
+SOURCE      screensaverctrlplugin.cpp
+SOURCE      screensaverctrlmovingtext.cpp
+SOURCE      screensavershareddatai.cpp
+SOURCE      screensaverutility.cpp
+SOURCE      screensaverindicator.cpp
+SOURCE      screensaverindicatorarray.cpp
+SOURCE      screensaverindicatoricon.cpp
+SOURCE      screensaverindicatornumberandicon.cpp
+SOURCE      screensaverindicatortext.cpp
+SOURCE      screensaversubscriber.cpp
+SOURCE      screensaverrepositorywatcher.cpp 
+SOURCE      screensavershareddatamonitor.cpp 
+SOURCE      screensaverengine.cpp
+
+START RESOURCE screensaver.rss
+HEADER
+TARGETPATH APP_RESOURCE_DIR
+LANGUAGE_IDS
+END  // RESOURCE
+
+
+START RESOURCE ../aif/screensaver_reg.rss
+// DEPENDS screensaver.rsg
+// Do not change the UID below.
+TARGETPATH /private/10003a3f/apps
+END
+
+USERINCLUDE ../inc
+
+// This is a SYSTEMINCLUDE macro containing the middleware
+// layer specific include directories
+APP_LAYER_SYSTEMINCLUDE
+
+SYSTEMINCLUDE   /epoc32/include/ecom
+
+LIBRARY     euser.lib
+LIBRARY     cone.lib
+LIBRARY     eikcore.lib
+LIBRARY     avkon.lib
+LIBRARY     apparc.lib
+LIBRARY     apgrfx.lib
+LIBRARY     ws32.lib
+LIBRARY     CommonEngine.lib
+LIBRARY     activitymanager.lib
+LIBRARY     aknlayout.lib
+LIBRARY     aknlayout2scalable.lib
+LIBRARY     fbscli.lib
+LIBRARY     egul.lib
+LIBRARY     msgs.lib
+LIBRARY     bafl.lib
+LIBRARY     power_save_display_mode.lib
+LIBRARY     gdi.lib
+LIBRARY     ProfileEng.lib
+LIBRARY     hal.lib
+LIBRARY     AknSkins.lib
+LIBRARY     FeatMgr.lib // Feature Manager API
+LIBRARY     AknIcon.lib
+LIBRARY     AknPictograph.lib
+LIBRARY     ecom.lib
+LIBRARY     CentralRepository.lib
+LIBRARY     CenRepNotifHandler.lib
+LIBRARY     efsrv.lib
+LIBRARY     flogger.lib
+#ifdef RD_UI_TRANSITION_EFFECTS_PHASE2
+LIBRARY     gfxtrans.lib
+LIBRARY     akntransitionutils.lib
+LIBRARY     akncapserverclient.lib
+#endif
+
+// End of file.

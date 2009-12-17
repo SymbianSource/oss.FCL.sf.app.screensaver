@@ -1,0 +1,29 @@
+/*
+* Copyright (c) 2005 Nokia Corporation and/or its subsidiary(-ies).
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:     Defines the ECOM Implementation UIDs. 
+*
+*/
+
+
+
+
+
+#ifndef SCREENSAVERANIMPLUGINIMPLEMENTATIONUID_HRH
+#define SCREENSAVERANIMPLUGINIMPLEMENTATIONUID_HRH
+
+#define KScreenSaverAnimPluginImplementationUID 0x1020744D
+
+#endif // SCREENSAVERANIMPLUGINIMPLEMENTATIONUID_HRH
+// End of File 
+

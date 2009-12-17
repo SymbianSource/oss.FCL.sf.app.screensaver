@@ -1,0 +1,62 @@
+/*
+* Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:  
+*     configurations macros for screensaver
+*
+*/
+
+#ifndef SCREENSAVERCONFIG_HRH
+#define SCREENSAVERCONFIG_HRH
+
+// Enable logging
+// #define LOGGING_ENABLED
+
+// Log layout rects
+// #define LAYOUT_TRACING
+
+// Test content (faster activation, partial mode test line,
+// some indicators on by default, layout area borders drawn)
+// #define TEST_CONTENT
+
+// For devices with a twist display. This will cause Screensaver to
+// stop slightly faster than with user activity created by the display
+// position change
+// NOTE that if screensaver is running on device default orientation (ie not
+// forced), and there is an application that changes screen orientation,
+// screensaver will commit suicide if it is activated on top of that
+// application and this flag is defined.
+#define FAST_STOP_ON_SCREENDEVICE_CHANGE
+
+// ONLY ONE OF THE POWERSAVE CONFIGURATIONS CAN BE ON AT A TIME
+// 
+// Power save area should always be based on width of the bar, not height
+// (for landscape displays with portrait power save)
+// #define POWERSAVE_BASED_ON_WIDTH
+//
+// Power save area should be based on width of the bar, if display
+// has been rotated (for rotatable displays with power save in original
+// orientation only)
+// #define POWERSAVE_BASED_ON_WIDTH_ROTATED
+
+
+// DEFAULT ORIENTATION (not defined = device default)
+//
+// Always stay in portrait (overrides landscape if both defined)
+// defining this attribute as lead HW for 3.2 supports screensaver only in portrait mode
+ #define ALWAYS_PORTRAIT
+//
+// Always stay in landscape
+//#define ALWAYS_LANDSCAPE
+
+#endif // SCREENSAVERCONFIG_HRH

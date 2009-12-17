@@ -1,0 +1,35 @@
+/*
+* Copyright (c) 2006 Nokia Corporation and/or its subsidiary(-ies).
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:     Build information file for slideshowplugin
+*
+*/
+
+
+
+
+PRJ_PLATFORMS 
+// Defaults
+
+PRJ_MMPFILES
+#ifdef __SLIDESHOW_SCREENSAVER
+SlideshowPlugin.mmp
+#endif
+
+PRJ_EXPORTS
+../loc/SlideshowPlugin.loc MW_LAYER_LOC_EXPORT_PATH(SlideshowPlugin.loc)
+
+../rom/SlideshowPlugin.iby          CORE_MW_LAYER_IBY_EXPORT_PATH(SlideshowPlugin.iby)
+../rom/SlideshowPluginResources.iby LANGUAGE_MW_LAYER_IBY_EXPORT_PATH(SlideshowPluginResources.iby)
+
+// End of file

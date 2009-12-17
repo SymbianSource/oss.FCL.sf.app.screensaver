@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!DOCTYPE SystemDefinition SYSTEM "sysdef_1_4_0.dtd" [
+  <!ENTITY layer_real_source_path "sf/app/screensaver" >
+]>
+
+<SystemDefinition name="screensaver" schema="1.4.0">
+  <systemModel>
+    <layer name="app_layer">
+      <module name="screensaver">
+        <unit unitID="abs.screensaver" mrp="" bldFile="&layer_real_source_path;/group" name="screensaver" />
+      </module>
+    </layer>
+  </systemModel>
+</SystemDefinition>
