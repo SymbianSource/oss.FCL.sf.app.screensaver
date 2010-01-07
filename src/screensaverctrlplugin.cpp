@@ -493,11 +493,21 @@ void CScreensaverCtrlPlugin::Draw( const TRect& /*aRect*/ ) const
         {
         err = iPlugin->Draw( gc );
         }
-	
-	if( err != KErrNone )
-		{
-		iPluginFlag.Set( EPluginFlagSuspend );
-		}
+    //Notice:add this code to shield the issue ELWG-7SF3R3.
+    //Prevent screensaver plugin from being called unexpected draw function,
+    //which would cause chosen images are not displayed.
+    //Check the err code return by iPlugin->Draw:
+    //If draw action is correct and iPluginFlag has already been set EPluginFlagSuspend,
+    //then clear this EPluginFlagSuspend
+    if ( KErrNone == err && iPluginFlag.IsSet( EPluginFlagSuspend ) )
+        {
+        iPluginFlag.Clear( EPluginFlagSuspend );
+        }
+
+    if( err != KErrNone )
+        {
+        iPluginFlag.Set( EPluginFlagSuspend );
+        }
     }
 
 // -----------------------------------------------------------------------------

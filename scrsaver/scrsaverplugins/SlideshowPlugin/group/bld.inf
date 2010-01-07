@@ -27,7 +27,7 @@ SlideshowPlugin.mmp
 #endif
 
 PRJ_EXPORTS
-../loc/SlideshowPlugin.loc MW_LAYER_LOC_EXPORT_PATH(SlideshowPlugin.loc)
+../loc/slideshowplugin.loc MW_LAYER_LOC_EXPORT_PATH(slideshowplugin.loc)
 
 ../rom/SlideshowPlugin.iby          CORE_MW_LAYER_IBY_EXPORT_PATH(SlideshowPlugin.iby)
 ../rom/SlideshowPluginResources.iby LANGUAGE_MW_LAYER_IBY_EXPORT_PATH(SlideshowPluginResources.iby)

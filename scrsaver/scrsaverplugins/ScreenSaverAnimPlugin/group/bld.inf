@@ -31,7 +31,7 @@ PRJ_MMPFILES
 ScreenSaverAnimPlugin.mmp
 PRJ_EXPORTS
 //../inc/NPNExtensions.h MW_LAYER_PLATFORM_EXPORT_PATH(NPNExtensions.h)
-../loc/ScreensaverAnimPlugin.loc MW_LAYER_LOC_EXPORT_PATH(ScreensaverAnimPlugin.loc)
+../loc/screensaveranimplugin.loc MW_LAYER_LOC_EXPORT_PATH(screensaveranimplugin.loc)
 
 ../rom/ScreenSaverAnimPlugin.iby          CORE_MW_LAYER_IBY_EXPORT_PATH(ScreenSaverAnimPlugin.iby)
 ../rom/ScreenSaverAnimPluginResources.iby LANGUAGE_MW_LAYER_IBY_EXPORT_PATH(ScreenSaverAnimPluginResources.iby)	
