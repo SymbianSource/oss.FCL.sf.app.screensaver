@@ -489,25 +489,22 @@ void CGifAnimationPluginControl::DeleteAnimation()
 //
 void CGifAnimationPluginControl::ViewerBitmapChangedL()
     {   
-    if ( iSourceImage )
+    switch ( iAnimationState )
         {
-        switch ( iAnimationState )
+        case EAnimationLoading:
             {
-            case EAnimationLoading:
-                {
-                iAnimationState = EAnimationPlaying;
-                break;
-                }
-            case EAnimationPlaying:
-                {
-                // do nothing 
-                break;
-                }
-            case EAnimationNotReady:
-            default:
-                {
-                break;
-                }
+            iAnimationState = EAnimationPlaying;
+            break;
+            }
+        case EAnimationPlaying:
+            {
+            // do nothing 
+            break;
+            }
+        case EAnimationNotReady:
+        default:
+            {
+            break;
             }
         }
     

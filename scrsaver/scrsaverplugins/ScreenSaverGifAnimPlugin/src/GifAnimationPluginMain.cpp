@@ -20,7 +20,7 @@
 
 
 #include <ecom/implementationproxy.h>
-#include <CEcomBrowserPluginInterface.h>
+#include <cecombrowserplugininterface.h>
 
 
 #include "GifAnimationPlugin.h"

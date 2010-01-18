@@ -25,7 +25,7 @@
 #include <fbs.h>
 #include <gdi.h>
 #include <f32file.h>
-#include <CEcomBrowserPluginInterface.h>
+#include <cecombrowserplugininterface.h>
 
 #include "GifAnimationPlugin.h"
 #include "GifAnimationUtils.h"

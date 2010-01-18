@@ -24,7 +24,7 @@
 #include <centralrepository.h>
 #include <coreapplicationuisdomainpskeys.h>  // KCoreAppUIsUipInd, KLightsVTForcedLightsOn
 #include <activeidle2domainpskeys.h>         // KPSUidAiInformation
-#include <SettingsInternalCRKeys.h>          // KSettingsScreenSaverPeriod
+#include <settingsinternalcrkeys.h>          // KSettingsScreenSaverPeriod
 #include <LogsDomainCRKeys.h>                // KLogsNewMissedCalls
 #include <ScreensaverInternalCRKeys.h>
 #include <AvkonInternalCRKeys.h>             // KAknNewContactsNoteActive

@@ -27,7 +27,7 @@
 #include <barsread.h>
 
 #include <npupp.h>
-#include <PluginAdapterInterface.h>
+#include <pluginadapterinterface.h>
 #include <CEcomBrowserPluginInterface.h>
 #include <MIHLViewerObserver.h>
 
