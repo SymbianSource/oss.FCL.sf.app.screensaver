@@ -685,10 +685,10 @@ TInt CScreensaverEngine::HandleInactiveEventL( TAny* aPtr )
     SCRLOGGER_WRITE("HandleInactiveEventL(), starting screensaver");
 
     CScreensaverEngine* _this= STATIC_CAST(CScreensaverEngine*, aPtr);
-    
+/*    
     // Double-start is OK, it will be checked in StartScreenSaver()
     _this->StartScreenSaver( );
-
+*/
     return KErrNone;
     }
 

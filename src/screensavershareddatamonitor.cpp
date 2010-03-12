@@ -65,6 +65,9 @@ CScreensaverSharedDataMonitor::~CScreensaverSharedDataMonitor()
     
     DeleteSubscriber( iShuttingDownSubscriber );
     iShuttingDownProperty.Close();
+
+    DeleteSubscriber( iActivateSSSubscriber );
+    iActivateSSProperty.Close();
     }
 
 // -----------------------------------------------------------------------------
@@ -133,6 +136,10 @@ void CScreensaverSharedDataMonitor::ConstructL()
     iShuttingDownSubscriber = new (ELeave) CSubscriber(
         TCallBack(HandleShuttingDownStateChanged, this), iShuttingDownProperty);
     iShuttingDownSubscriber->SubscribeL();
+
+    User::LeaveIfError( iActivateSSProperty.Attach( KPSUidScreenSaver, KScreenSaverActivate ) );
+    iActivateSSSubscriber = new( ELeave ) CSubscriber( TCallBack( HandleActivateSSChanged, this ), iActivateSSProperty );
+    iActivateSSSubscriber->SubscribeL();
     }
 
 // -----------------------------------------------------------------------------
@@ -236,10 +243,16 @@ TInt CScreensaverSharedDataMonitor::HandleKeyguardStateChanged(TAny* aPtr)
         // Keys locked - if screensaver is running, this was caused by
         // automatic keyguard and screensaver should refresh the view
         // to show the keylock indicator
-        if ( _this->Model().ScreenSaverIsOn() )
+/*        if ( _this->Model().ScreenSaverIsOn() )
             {
             _this->View()->UpdateAndRefresh();
             }
+*/
+        _this->Model().StartScreenSaver();
+        }
+    else
+        {
+        _this->Model().StopScreenSaver();
         }
 
     return KErrNone;
@@ -279,5 +292,32 @@ TInt CScreensaverSharedDataMonitor::HandleShuttingDownStateChanged( TAny* /*aPtr
     
     return KErrNone;
     }
+
+
+TInt CScreensaverSharedDataMonitor::HandleActivateSSChanged( TAny* aPtr )
+    {
+    TInt activateState = -1;
+
+    RProperty::Get( KPSUidScreenSaver, KScreenSaverActivate, activateState );
+
+    if( activateState && -1 != activateState )
+        {
+        // Enable SS
+        SCRLOGGER_WRITE("SharedDataMonitor: Activate SS");
+        STATIC_CAST(CScreensaverSharedDataMonitor*, aPtr)->Model().StartScreenSaver();
+        }
+    else if ( !activateState )
+        {
+        // Disable SS
+        SCRLOGGER_WRITE("SharedDataMonitor: Stop SS");
+        STATIC_CAST(CScreensaverSharedDataMonitor*, aPtr)->Model().StopScreenSaver();
+        }
+    else
+        {
+        // Unknown state
+        }
+    return KErrNone;
+    }
+
 
 // End of file

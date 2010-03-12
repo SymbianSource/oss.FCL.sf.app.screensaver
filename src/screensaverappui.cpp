@@ -156,7 +156,7 @@ TKeyResponse CScreensaverAppUi::HandleKeyEventL( const TKeyEvent& aKeyEvent,
             {
             if ( aType == EEventKeyUp )
                 {
-                stop = ETrue;
+                //stop = ETrue;
                 }
             }
         }

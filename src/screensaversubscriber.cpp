@@ -68,8 +68,8 @@ void CSubscriber::RunL()
     {
     if (iStatus.Int() == KErrNone)
         {
-        iCallBack.CallBack();
         SubscribeL();
+        iCallBack.CallBack();
         }
     }
 

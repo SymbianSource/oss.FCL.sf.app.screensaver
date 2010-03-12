@@ -108,7 +108,9 @@ private:
     * Callback fuction. Called when the ShuttingDown state changed
     */
     static TInt HandleShuttingDownStateChanged(TAny* aPtr);
-    
+
+    static TInt HandleActivateSSChanged( TAny* aPtr );
+
 private:
     
     /*
@@ -151,6 +153,9 @@ private:
     */
     RProperty iShuttingDownProperty;
     CSubscriber* iShuttingDownSubscriber;
+
+    RProperty iActivateSSProperty;
+    CSubscriber* iActivateSSSubscriber;
 
     };
 

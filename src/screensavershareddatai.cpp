@@ -386,7 +386,9 @@ TBool CScreensaverSharedDataI::IsUsePowerSaveMode() const
     // Check if power save mode has been denied
     RProperty::Get( KPSUidScreenSaver, KScreenSaverNoPowerSaveMode, state );
 
-    return ( state != 1 );
+    // TODO: remove when partial mode is working again
+   // return ( state != 1 );
+    return EFalse;
     }
 
 // -----------------------------------------------------------------------------
@@ -663,6 +665,8 @@ void CScreensaverSharedDataI::ConstructL()
     // Define and initialize "no power save mode" property
     // Read: pass, Write: pass
     DefineScreensaverProperties( KScreenSaverNoPowerSaveMode, KSSPolicyPass );
+
+    DefineScreensaverProperties( KScreenSaverActivate, KSSPolicyWriteUserData );
     }
 
 // -----------------------------------------------------------------------------
