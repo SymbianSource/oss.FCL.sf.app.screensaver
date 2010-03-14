@@ -28,7 +28,7 @@
 
 #include <npupp.h>
 #include <pluginadapterinterface.h>
-#include <CEcomBrowserPluginInterface.h>
+#include <cecombrowserplugininterface.h>
 #include <MIHLViewerObserver.h>
 
 

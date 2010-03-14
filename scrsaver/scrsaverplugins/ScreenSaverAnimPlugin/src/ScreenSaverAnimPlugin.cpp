@@ -31,8 +31,8 @@
 #include <aknnavi.h>
 #include <aknnavide.h>
 #include <npupp.h>
-#include <CEcomBrowserPluginInterface.h>
-#include <BrowserPluginInterface.h>
+#include <cecombrowserplugininterface.h>
+#include <browserplugininterface.h>
 #include <mmf/common/mmfcontrollerpluginresolver.h>
 #include <DRMHelperServerInternalCRKeys.h>
 #include <NPNExtensions.h>

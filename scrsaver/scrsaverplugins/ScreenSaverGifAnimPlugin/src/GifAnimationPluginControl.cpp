@@ -400,17 +400,17 @@ void CGifAnimationPluginControl::DoImageLoadingL()
      	}
 
     // create bitmaps needed for manual scaling    
-    TDisplayMode dMode = CEikonEnv::Static()->DefaultDisplayMode();
+    //TDisplayMode dMode = CEikonEnv::Static()->DefaultDisplayMode();
     if ( iScalingBitmap == NULL )
         {
         iScalingBitmap = new( ELeave ) CFbsBitmap;
-        iScalingBitmap->Create( iTargetSize, dMode ); 
+        iScalingBitmap->Create( iTargetSize, EGray256 ); 
         }
 
     if ( iScalingBitmapMask == NULL )
         {
         iScalingBitmapMask = new( ELeave ) CFbsBitmap;
-        iScalingBitmapMask->Create( iTargetSize, dMode ); 
+        iScalingBitmapMask->Create( iTargetSize, EGray256 ); 
         }
 
     CleanupStack::PopAndDestroy( &fileHandle );

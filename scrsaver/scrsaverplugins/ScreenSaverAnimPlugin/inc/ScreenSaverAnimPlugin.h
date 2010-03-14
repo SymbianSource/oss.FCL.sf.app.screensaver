@@ -29,8 +29,8 @@
 #include <coecobs.h>
 #include <npupp.h>
 #include <ecom/implementationinformation.h>    
-#include <CEcomBrowserPluginInterface.h>
-#include <PluginAdapterInterface.h>
+#include <cecombrowserplugininterface.h>
+#include <pluginadapterinterface.h>
 #include <flogger.h>
 
 
