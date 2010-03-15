@@ -199,9 +199,9 @@ TInt CScreensaverSharedDataMonitor::HandlePreviewModeChanged(TAny *aPtr)
 // MMC, screensaver defaults to date & time when MMC removed
 // -----------------------------------------------------------------------------
 //
-TInt CScreensaverSharedDataMonitor::HandleMMCStateChanged(TAny* aPtr)
+TInt CScreensaverSharedDataMonitor::HandleMMCStateChanged(TAny* /*aPtr*/)
     {
-    STATIC_CAST(CScreensaverSharedDataMonitor*, aPtr)->Model().StopScreenSaver();
+    User::ResetInactivityTime();
     return KErrNone;
     }
 
@@ -211,10 +211,10 @@ TInt CScreensaverSharedDataMonitor::HandleMMCStateChanged(TAny* aPtr)
 // MMC, screensaver defaults to date & time when USB attached
 // -----------------------------------------------------------------------------
 //
-TInt CScreensaverSharedDataMonitor::HandleUSBStateChanged(TAny* aPtr)
+TInt CScreensaverSharedDataMonitor::HandleUSBStateChanged(TAny* /*aPtr*/)
     {
     // Same handler as in MMC removal, parameter tells it's because of USB
-    STATIC_CAST(CScreensaverSharedDataMonitor*, aPtr)->Model().StopScreenSaver();
+    User::ResetInactivityTime();
     return KErrNone;
     }
 
@@ -238,22 +238,7 @@ TInt CScreensaverSharedDataMonitor::HandleKeyguardStateChanged(TAny* aPtr)
     CScreensaverSharedDataMonitor* _this =
         STATIC_CAST(CScreensaverSharedDataMonitor*, aPtr);
 
-    if ( _this->iData->IsKeyguardOn() )
-        {
-        // Keys locked - if screensaver is running, this was caused by
-        // automatic keyguard and screensaver should refresh the view
-        // to show the keylock indicator
-/*        if ( _this->Model().ScreenSaverIsOn() )
-            {
-            _this->View()->UpdateAndRefresh();
-            }
-*/
-        _this->Model().StartScreenSaver();
-        }
-    else
-        {
-        _this->Model().StopScreenSaver();
-        }
+    _this->Model().HandleKeyguardStateChanged( _this->iData->IsKeyguardOn() );
 
     return KErrNone;
     }

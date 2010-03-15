@@ -30,6 +30,9 @@
 //delay before wserv timer is turned off
 #define KWSERVHEARTBEATTIMEOUT 15
 
+// Delay after screensaver is stopped and hided.
+const TInt KDefaultScreenSaverTimeout = 2 * 60 * 1000000; // 2 mins
+
 // FORWARD DECLARATIONS
 class CUserActivityManager;
 class CScreensaverSharedDataI;
@@ -126,6 +129,22 @@ public:
     * Updates the indicator attributes.
     */
     void UpdateIndicatorAttributes( );
+
+    /*
+     * Start screensaver expiry timer. When the timer expires the screensaver
+     * will be stopped and hided.
+     * 
+     * @param aTimeout Timeout after the screensaver stops and hides itself in
+     * microseconds. 0 or negative value will disable the timer.
+     */
+    void SetExpiryTimerTimeout( TInt aTimeout );
+
+    
+    /**
+    * Informs the engine about changes in keyguard state
+    * @param aEnabled whether the keyguard is now on or off 
+    */
+    void HandleKeyguardStateChanged( TBool aEnabled );
     
 private:
     
@@ -227,6 +246,10 @@ private:
     */
     TInt DisplayFlag();
 
+    /**
+    * Callback fuction. Called when the screensaver expiry timer time out.
+    */
+    static TInt HandleExpiryTimerExpiry( TAny* aPtr );
 
 private:
     
@@ -295,6 +318,15 @@ private:
     * used to intercept and capture application key event.
     */
     RAknUiServer iAknUiServer;
+
+    /**
+    * The screensaver expiry timer. Screensaver will be stoped when this timer
+    * expires.
+    * 
+    * Owned.
+    */
+    CPeriodic* iExpiryTimer;
+
     };
 
 

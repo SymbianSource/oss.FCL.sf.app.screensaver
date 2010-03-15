@@ -291,12 +291,13 @@ void CScreensaverCtrlPlugin::Suspend( TInt aTime )
 
     View()->SetDisplayObject( Model().SharedDataInterface()->DefaultScreensaverType() );
 
+    CScreensaverEngine& model = MUTABLE_CAST( CScreensaverEngine&, Model() );
+    model.SetExpiryTimerTimeout( KDefaultScreenSaverTimeout );
+
     View()->ShowDisplayObject();
     
     if ( aTime >= 0 )
         {
-        CScreensaverEngine& model = MUTABLE_CAST( CScreensaverEngine&, Model() );
-        
         model.StartSuspendTimer( aTime );
         }
     }
@@ -385,6 +386,8 @@ void CScreensaverCtrlPlugin::UseRefreshTimer( TBool aOn )
 //
 void CScreensaverCtrlPlugin::RequestTimeout( TInt aSecs )
     {
+    CScreensaverEngine& model = MUTABLE_CAST( CScreensaverEngine&, Model() );
+    model.SetExpiryTimerTimeout( 0 );
     StartPluginTimeoutTimer( aSecs );
     }
 

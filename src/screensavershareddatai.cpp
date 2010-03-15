@@ -188,7 +188,7 @@ TInt CScreensaverSharedDataI::ScreensaverTimeout() const
 
     if (iSettingsRepository)
         {
-        iSettingsRepository->Get(KSettingsScreenSaverPeriod, timeout);
+        iSettingsRepository->Get(KSettingsAutomaticKeyguardTime, timeout);
         }
     // No less than minimum timeout
     // Old backed up minutes 1-4 will cause default timeout after
@@ -690,13 +690,13 @@ void CScreensaverSharedDataI::ConnectToSSCRL()
 //
 void CScreensaverSharedDataI::ConnectToPslnSettingCRL()
     {
-    TRAPD(ret, iSettingsRepository = CRepository::NewL(KCRUidPersonalizationSettings));
+    TRAPD(ret, iSettingsRepository = CRepository::NewL(KCRUidSecuritySettings));
     
     if( ret == KErrNone )
         {
         iSettingsRepositoryWatcher = CScreensaverRepositoryWatcher::NewL(
             KCRUidPersonalizationSettings,
-            KSettingsScreenSaverPeriod,
+            KSettingsAutomaticKeyguardTime,
             CCenRepNotifyHandler::EIntKey,
             TCallBack(HandleTimeoutChanged, this),
             iSettingsRepository);

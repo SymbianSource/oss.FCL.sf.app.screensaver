@@ -75,6 +75,7 @@ CScreensaverEngine::~CScreensaverEngine( )
     DisableSharedDataAndMonitor();
     delete iIndicatorArray;
     KillTimer( iPreviewTimer );
+    KillTimer( iExpiryTimer );
     iAknUiServer.Close();
     }
 
@@ -153,6 +154,8 @@ void CScreensaverEngine::StartScreenSaver( )
 
             // Report whether started from Idle BEFORE bringing to foreground
             iSharedDataI->SetSSStartedFromIdleStatus();
+            
+            iSharedDataI->SetSSForcedLightsOn(1);
 
             ScreensaverUtility::BringToForeground();
 
@@ -193,6 +196,8 @@ void CScreensaverEngine::StopScreenSaver()
         iSharedDataI->SetScreensaverStatus( EFalse );
 
         iScreenSaverIsOn = EFalse ;
+
+        KillTimer( iExpiryTimer );
 
         View()->HideDisplayObject();
         }
@@ -259,6 +264,8 @@ void CScreensaverEngine::DisplayObject()
         }
 
     UpdateIndicatorAttributes();
+
+    SetExpiryTimerTimeout( KDefaultScreenSaverTimeout );
 
     View()->ShowDisplayObject();
 
@@ -455,6 +462,27 @@ void CScreensaverEngine::UpdateIndicatorAttributes()
 //        {
         iIndicatorArray->SetVisibilityForIndicators();
 //        }
+    }
+
+
+// -----------------------------------------------------------------------------
+// Start screensaver expiry timer. When the timer expires the screensaver will
+// be stopped and hided.
+// -----------------------------------------------------------------------------
+//
+void CScreensaverEngine::SetExpiryTimerTimeout( TInt aTimeout )
+    {
+    SCRLOGGER_WRITEF( _L( "SCR:CScreensaverEngine::SetExpiryTimerTimeout(%d) start" ), aTimeout );
+    KillTimer( iExpiryTimer );
+
+    if ( 0 < aTimeout )
+        {
+        TRAP_IGNORE(
+            iExpiryTimer = CPeriodic::NewL( CActive::EPriorityStandard );
+            iExpiryTimer->Start( aTimeout , aTimeout ,
+                TCallBack( HandleExpiryTimerExpiry, this ) );
+            )
+        }
     }
 
 
@@ -685,10 +713,12 @@ TInt CScreensaverEngine::HandleInactiveEventL( TAny* aPtr )
     SCRLOGGER_WRITE("HandleInactiveEventL(), starting screensaver");
 
     CScreensaverEngine* _this= STATIC_CAST(CScreensaverEngine*, aPtr);
-/*    
+    
     // Double-start is OK, it will be checked in StartScreenSaver()
+    // This will be trigged by keylock activation after keyguard
+    // timeout, or if keylock is disabled
     _this->StartScreenSaver( );
-*/
+
     return KErrNone;
     }
 
@@ -712,6 +742,8 @@ TInt CScreensaverEngine::HandleInactiveEventShortL( TAny* aPtr )
     SCRLOGGER_WRITE("HandleInactiveEventShortL()");
     // Start, if keys are locked and short timeout in use
     CScreensaverEngine* _this= STATIC_CAST(CScreensaverEngine*, aPtr);
+    // Restore inactivity timeout if it was reset at keylock activation
+    _this->iActivityManagerScreensaverShort->SetInactivityTimeout(KTimeoutShort);
     
     if ( _this->iSharedDataI->IsKeyguardOn() )
         {
@@ -737,6 +769,24 @@ TInt CScreensaverEngine::HandleSuspendTimerExpiry( TAny* aPtr )
     control->View()->ShowDisplayObject();
 
     return KErrNone;
+    }
+
+// ---------------------------------------------------------------------------
+// CScreensaverEngine::HandleKeyguardStateChanged
+// ---------------------------------------------------------------------------
+//
+void CScreensaverEngine::HandleKeyguardStateChanged( TBool aEnabled )
+    {
+    if ( aEnabled )
+        {
+        // Keyguard switch generates an activity event still, let the inactivity
+        // handler start the screensaver after one second
+        iActivityManagerScreensaverShort->SetInactivityTimeout(1);
+        }
+    else
+        {
+        StopScreenSaver();
+        }
     }
 
 // -----------------------------------------------------------------------------
@@ -765,4 +815,26 @@ TInt CScreensaverEngine::DisplayFlag( )
     {
     return iSharedDataI->IsScreenSaverAllowed();
     }
+
+
+// -----------------------------------------------------------------------------
+// Handles expire timer timeout
+// -----------------------------------------------------------------------------
+//
+TInt CScreensaverEngine::HandleExpiryTimerExpiry( TAny* aPtr )
+    {
+    SCRLOGGER_WRITEF( _L( "SCR:CScreensaverEngine::HandleExpiryTimerExpiry(%d) start" ), aPtr );
+    CScreensaverEngine *control = STATIC_CAST( CScreensaverEngine*, aPtr );
+
+    if ( control )
+        {
+        control->KillTimer( control->iExpiryTimer );
+        control->StopScreenSaver();
+        control->iSharedDataI->SetSSForcedLightsOn( 0 );
+        }
+
+    return KErrNone;
+    }
+
+
 // End of file.
