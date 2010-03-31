@@ -261,11 +261,10 @@ void CScreensaverEngine::DisplayObject()
     if ( iSharedDataI->DisplayObjectType() == EDisplayPlugin )
         {
         View()->SetDisplayObject( EDisplayPlugin );
+        SetExpiryTimerTimeout( KDefaultScreenSaverTimeout );
         }
 
     UpdateIndicatorAttributes();
-
-    SetExpiryTimerTimeout( KDefaultScreenSaverTimeout );
 
     View()->ShowDisplayObject();
 
@@ -829,8 +828,10 @@ TInt CScreensaverEngine::HandleExpiryTimerExpiry( TAny* aPtr )
     if ( control )
         {
         control->KillTimer( control->iExpiryTimer );
-        control->StopScreenSaver();
-        control->iSharedDataI->SetSSForcedLightsOn( 0 );
+        // Revert to default screensaver.
+        control->View()->SetDisplayObject(
+            control->SharedDataInterface()->DefaultScreensaverType() );
+        control->View()->ShowDisplayObject();
         }
 
     return KErrNone;

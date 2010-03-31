@@ -190,6 +190,7 @@ void CScreensaverCtrlPlugin::SetRefreshTimerValue( TInt aValue )
 
     iPluginRefreshRate = aValue;
     iPluginFlag.Clear( EPluginFlagTimerNotUsed );
+    StartPluginRefreshTimer();
     }
 
 // -----------------------------------------------------------------------------
