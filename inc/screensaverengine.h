@@ -34,7 +34,7 @@
 const TInt KDefaultScreenSaverTimeout = 2 * 60 * 1000000; // 2 mins
 
 // FORWARD DECLARATIONS
-class CUserActivityManager;
+class CScreensaverActivityManager;
 class CScreensaverSharedDataI;
 class CScreensaverSharedDataMonitor;
 class CScreensaverAppUi;
@@ -146,6 +146,11 @@ public:
     */
     void HandleKeyguardStateChanged( TBool aEnabled );
     
+    /**
+     * Informs the engine that a key event was received
+     */
+    void NotifyKeyEventReceived();
+    
 private:
     
     /**
@@ -180,7 +185,7 @@ private:
     /**
     * Stops monitoring the user activity
     */
-    void StopActivityMonitoring( CUserActivityManager*& aActivityManager );
+    void StopActivityMonitoring( CScreensaverActivityManager*& aActivityManager );
 
     /**
     * Gets the color model from the resource
@@ -230,6 +235,10 @@ private:
     */
     static TInt HandleSuspendTimerExpiry( TAny* aPtr );
 
+    /**
+    * Callback function. Called when activity is no longer ignored
+    */
+    static TInt ResetIgnoreFlagCb( TAny* aPtr );
     
     /**
     * Returns the CScreensaverView
@@ -269,9 +278,14 @@ private:
     TBool iScreenSaverIsPreviewing;
     
     /**
+    * 
+    */
+    TBool iIgnoreNextActivity;
+    
+    /**
     * The trigger for screensaver activation
     */
-    CUserActivityManager* iActivityManagerScreensaver;
+    CScreensaverActivityManager* iActivityManagerScreensaver;
 
     
     /**
@@ -296,7 +310,7 @@ private:
     /**
     * The trigger for screensaver activation, short timeout
     */
-    CUserActivityManager* iActivityManagerScreensaverShort;
+    CScreensaverActivityManager* iActivityManagerScreensaverShort;
     
     /**
     * moved from view class
@@ -326,6 +340,11 @@ private:
     * Owned.
     */
     CPeriodic* iExpiryTimer;
+    
+    /**
+     * Timer to ignore activity events after keylock activated.
+     */
+    CPeriodic* iIgnoreActivityResetTimer;
 
     };
 

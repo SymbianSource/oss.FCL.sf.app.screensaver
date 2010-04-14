@@ -64,7 +64,8 @@ SOURCE      screensaverindicatortext.cpp
 SOURCE      screensaversubscriber.cpp
 SOURCE      screensaverrepositorywatcher.cpp 
 SOURCE      screensavershareddatamonitor.cpp 
-SOURCE      screensaverengine.cpp
+SOURCE      screensaverengine.cpp 
+SOURCE      screensaveractivitymanager.cpp
 
 START RESOURCE screensaver.rss
 HEADER
@@ -95,7 +96,6 @@ LIBRARY     apparc.lib
 LIBRARY     apgrfx.lib
 LIBRARY     ws32.lib
 LIBRARY     CommonEngine.lib
-LIBRARY     activitymanager.lib
 LIBRARY     aknlayout.lib
 LIBRARY     aknlayout2scalable.lib
 LIBRARY     fbscli.lib

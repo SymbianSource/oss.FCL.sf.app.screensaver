@@ -607,7 +607,7 @@ void CScreenSaverAnimPluginContainer::GetNormalScreenLayoutRect(
     TRect& aRect )  const // Rectangle specifying extent of control
     {
     AknLayoutUtils::LayoutMetricsRect(
-            AknLayoutUtils::EApplicationWindow, 
+            AknLayoutUtils::EMainPane, 
             aRect );
     }
 

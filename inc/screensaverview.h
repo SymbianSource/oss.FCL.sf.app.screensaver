@@ -74,6 +74,10 @@ public:
     */
     void CreatePreviewDisplayObjectL();
     
+    /**
+    * Returns true the screensaver doesn't draw anything
+    */
+    TBool IsContentlessScreensaver() const;
 
 public://From CAknView
     
@@ -155,6 +159,11 @@ private:
     * The plugin refresh rate
     */
     TInt iPluginRefreshRate;
+    
+    /**
+    * True if the active screensaver doesn't draw (e.g None)
+    */
+    TBool iIsContentless;
 
     };
 

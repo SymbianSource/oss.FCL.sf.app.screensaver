@@ -105,6 +105,7 @@ void CScreensaverCtrlMovingText::Draw( const TRect& aRect ) const
         {
         return;
         }
+
     SCRLOGGER_WRITEF( _L("SCR:CScreensaverCtrlMovingText::Draw, screensaver is on or previewing") );
     // Graphics context to draw on.
     CWindowGc& gc = SystemGc();
@@ -146,6 +147,8 @@ void CScreensaverCtrlMovingText::SetMoving( TBool aMove )
 void CScreensaverCtrlMovingText::StartTimer()
     {
     SCRLOGGER_WRITEF( _L("SCR:CScreensaverCtrlMovingText::StartTimer start") );
+    Model().SharedDataInterface()->SetSSForcedLightsOn( ESSForceLightsOn );
+
     StartCaptureScreenTimer();
 
     StartBarRefreshTimer();

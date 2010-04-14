@@ -85,6 +85,13 @@ public:
     * @return TInt  
     */
     TInt SendPluginEvent( TScreensaverEvent aEvent );
+    
+    /**
+    * Returns the implemenataion UID of the plugin
+    * 
+    * @return TUid Implementation UID
+    */
+    TUid PluginImplementationUid() const;
 
 public:
     // From MScreensaverPluginHost
@@ -201,5 +208,11 @@ private://data
     * The refresh rate of plugin
     */
     TInt iPluginRefreshRate;
+    
+    /**
+    * The implementation UID of the plugin
+    */
+    TUid iPluginImplUid;
+    
     };
 #endif // C_SCREENSAVERCTRLPLUGIN_H

@@ -539,7 +539,7 @@ void CGifAnimationPluginControl::ViewerBitmapChangedL()
                     CFbsBitGc* graphicsMaskContext = NULL; 
                     User::LeaveIfError( bitmapMaskDevice->CreateContext( graphicsMaskContext ) ); 
                     CleanupStack::PushL( graphicsMaskContext ); 
-                    graphicsContext->DrawBitmap( iTargetSize, &iDrawingBitmap->Mask(), srcRect ); 
+                    graphicsMaskContext->DrawBitmap( iTargetSize, &iDrawingBitmap->Mask(), srcRect ); 
                     CleanupStack::PopAndDestroy( 2 );//graphicsContext,bitmapDevice
                     }
                 }

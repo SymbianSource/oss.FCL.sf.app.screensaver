@@ -31,6 +31,7 @@
 #include "screensaverengine.h"
 #include "screensavershareddatai.h"
 
+const TUid KBigClockScreensaverPluginImplUid = { 0x2002E6DE };
 
 // -----------------------------------------------------------------------------
 // CScreensaverView::NewLC
@@ -93,6 +94,13 @@ void CScreensaverView::CreateDisplayObjectL( TDisplayObjectType aType )
         case EDisplayPlugin:
             {
             iControl = CScreensaverCtrlPlugin::NewL();
+            CScreensaverCtrlPlugin* pluginCtrl = 
+                STATIC_CAST( CScreensaverCtrlPlugin*, iControl );
+            if ( pluginCtrl->PluginImplementationUid() ==
+                 KBigClockScreensaverPluginImplUid )
+                {
+                iIsContentless = ETrue;
+                }
             break;
             }
             
@@ -106,6 +114,7 @@ void CScreensaverView::CreateDisplayObjectL( TDisplayObjectType aType )
         case EDisplayNone:
             {
             iControl = CScreensaverCtrlNone::NewL();
+            iIsContentless = ETrue;
             break;
             }
             
@@ -156,6 +165,15 @@ void CScreensaverView::CreatePreviewDisplayObjectL()
         EScreenSaverPreviewError );
     }
 
+// ---------------------------------------------------------------------------
+// CScreensaverView::IsContentlessScreensaver
+// ---------------------------------------------------------------------------
+//
+TBool CScreensaverView::IsContentlessScreensaver() const
+    {
+    return iIsContentless;
+    }
+
 // -----------------------------------------------------------------------------
 // CScreensaverView::Id
 // -----------------------------------------------------------------------------
@@ -203,8 +221,11 @@ void CScreensaverView::HideDisplayObject()
     {
     SCRLOGGER_WRITEF(_L("SCR: CScreensaverView::HideDisplayObject "));
     iControl->StopDrawObject();
-    
-    ScreensaverUtility::SendToBackground();
+
+    if ( !IsContentlessScreensaver() )
+        {
+        ScreensaverUtility::SendToBackground();
+        }
     }
 
 // -----------------------------------------------------------------------------
@@ -257,5 +278,6 @@ void CScreensaverView::DestroyDisplayObject()
         delete iControl;
         iControl = NULL;
         }
+    iIsContentless = EFalse;
     }
 // End of file

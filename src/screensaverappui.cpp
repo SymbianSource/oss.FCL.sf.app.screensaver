@@ -138,6 +138,7 @@ TKeyResponse CScreensaverAppUi::HandleKeyEventL( const TKeyEvent& aKeyEvent,
         {
         return EKeyWasConsumed;
         }
+    iModel->NotifyKeyEventReceived();
 
     if ( aType == EEventKey && aKeyEvent.iCode == EKeyNo )
         {

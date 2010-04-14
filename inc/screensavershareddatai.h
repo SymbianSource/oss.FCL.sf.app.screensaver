@@ -29,6 +29,12 @@
 #include "ScreensaverInternalCRKeys.h"
 #include "screensaverengine.h"
 
+enum
+    {
+    ESSForceLightsOff = 0,
+    ESSForceLightsOn
+    };
+
 // CLASS DECLARATION
 class CRepository;
 class CScreensaverRepositoryWatcher;

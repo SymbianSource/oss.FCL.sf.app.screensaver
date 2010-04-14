@@ -63,6 +63,8 @@ CScreensaverCtrlPlugin::~CScreensaverCtrlPlugin()
 void CScreensaverCtrlPlugin::StartTimer()
     {
     // Notify plugin that screensaver is starting
+    Model().SharedDataInterface()->SetSSForcedLightsOn( ESSForceLightsOn );
+    
     SendPluginEvent( EScreensaverEventStarting );
     
     
@@ -144,6 +146,15 @@ TInt CScreensaverCtrlPlugin::SendPluginEvent( TScreensaverEvent aEvent )
         }
 
     return KErrNone;
+    }
+
+// ---------------------------------------------------------------------------
+// CScreensaverCtrlPlugin::PluginImplementationUid()
+// ---------------------------------------------------------------------------
+//
+TUid CScreensaverCtrlPlugin::PluginImplementationUid() const
+    {
+    return iPluginImplUid;
     }
 
 // From MScreensaverPluginHost
@@ -544,22 +555,23 @@ void CScreensaverCtrlPlugin::LoadPluginModuleL()
     // Skip the first character: '['
     lex.Get();
     
-    TUint screenSaverPluginImpUid;
+    TUint32 tempUid;
     
     // Get the UID
-    TInt err = lex.Val( screenSaverPluginImpUid, EHex );
+    TInt err = lex.Val( tempUid, EHex );
     
     // Bail out, if the UID is not parseable
     if ( err != KErrNone )
         {
         iPlugin = NULL;
         }
+    
+    iPluginImplUid = TUid::Uid( tempUid );
     //codescanner will crib if leaving function inside trap is called
     //after line break within the macro. Hence the following trap call
     //is made in a single line
     TRAP(err, iPlugin = STATIC_CAST( MScreensaverPlugin*, 
-        CScreensaverPluginInterfaceDefinition::NewL( 
-            TUid::Uid( screenSaverPluginImpUid ) ) ) );
+        CScreensaverPluginInterfaceDefinition::NewL( iPluginImplUid ) ) );
     
     if( err != KErrNone )
         return;

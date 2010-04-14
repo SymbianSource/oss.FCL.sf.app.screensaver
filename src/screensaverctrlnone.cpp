@@ -75,7 +75,7 @@ void CScreensaverCtrlNone::ClearScreen()
     SCRLOGGER_WRITEF( _L("SCR:CScreensaverCtrlNone::ClearScreen start") );
     SwitchDisplayState( KDisplayOn );
     
-    SwitchLights( KMaxLightsOnTime );
+    SwitchLights( ESSForceLightsOn );
     }
 
 // -----------------------------------------------------------------------------
@@ -95,8 +95,7 @@ void CScreensaverCtrlNone::DrawObject()
     SCRLOGGER_WRITEF( _L("SCR:CScreensaverCtrlNone::DrawObject start") );
     SwitchDisplayState( KDisplayOff );
     
-    SwitchLights( 0 );
-    
+    SwitchLights( ESSForceLightsOff );
     }
 
 // -----------------------------------------------------------------------------
