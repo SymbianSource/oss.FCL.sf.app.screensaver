@@ -30,6 +30,7 @@ public:
 	                    TCallBack aInactiveCallback,
 	                    TCallBack aActiveCallback);
 	void SetInactivityTimeout(TTimeIntervalSeconds aInterval);
+	TBool IsMonitoringForActivity();
 private:
 	void RunL();
 	CScreensaverActivityManager(TInt aPriority);

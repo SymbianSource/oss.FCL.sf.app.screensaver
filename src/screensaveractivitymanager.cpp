@@ -124,3 +124,8 @@ void CScreensaverActivityManager::RunL()
             }
 		}
 	}
+
+TBool CScreensaverActivityManager::IsMonitoringForActivity()
+    {
+    return ( iState == EStMonForActivity );
+    }

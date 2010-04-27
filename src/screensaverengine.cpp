@@ -812,7 +812,17 @@ void CScreensaverEngine::HandleKeyguardStateChanged( TBool aEnabled )
             // Start the screensaver, but set the ignore flag in case keylock
             // was activated using the side switch. The switch will generate
             // activity that must be ignored.
-            StartScreenSaver();
+            if ( iActivityManagerScreensaverShort->IsMonitoringForActivity() )
+                {
+                // Inactive state, start immediately
+                StartScreenSaver();
+                }
+            else
+                {
+                // Active state, go to inactive and start.
+                iActivityManagerScreensaverShort->SetInactivityTimeout(0);
+                }
+            
             iIgnoreNextActivity = ETrue;
             
             iIgnoreActivityResetTimer = CPeriodic::New( EPriorityLow );

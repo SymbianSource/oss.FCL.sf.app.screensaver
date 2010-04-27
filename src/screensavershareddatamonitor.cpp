@@ -255,7 +255,7 @@ TInt CScreensaverSharedDataMonitor::HandleCallStateChanged(TAny* aPtr)
     // Prevent fullscreen transition from screensaver on incoming call
     CAknTransitionUtils::SetData( KScreensaverCallStateChange, (TAny*)1 );
 #endif
-
+    User::ResetInactivityTime();
     STATIC_CAST(CScreensaverSharedDataMonitor*, aPtr)->Model().StopScreenSaver();
     return KErrNone;
     }
