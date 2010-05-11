@@ -138,7 +138,6 @@ TKeyResponse CScreensaverAppUi::HandleKeyEventL( const TKeyEvent& aKeyEvent,
         {
         return EKeyWasConsumed;
         }
-    iModel->NotifyKeyEventReceived();
 
     if ( aType == EEventKey && aKeyEvent.iCode == EKeyNo )
         {
@@ -155,9 +154,10 @@ TKeyResponse CScreensaverAppUi::HandleKeyEventL( const TKeyEvent& aKeyEvent,
             }
         else
             {
-            if ( aType == EEventKeyUp )
+            if ( aType == EEventKeyUp && 
+                 !iModel->SharedDataInterface()->IsKeyguardOn() )
                 {
-                //stop = ETrue;
+                stop = ETrue;
                 }
             }
         }

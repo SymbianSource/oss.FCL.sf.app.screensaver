@@ -269,10 +269,7 @@ private:
 
     // Display info
     TScreensaverDisplayInfo iDi;
-            
-    // Plugin state tracking
-    TInt iState;
-    
+
     // Resource file offset
     TInt iResourceOffset;   
 
@@ -320,6 +317,9 @@ private:
     // Draw count
     TInt iDrawCount;
     TBool iTimerUpdated;
+    
+    //loading state
+    TBool iIsLoadFinished;
     };  
 
 

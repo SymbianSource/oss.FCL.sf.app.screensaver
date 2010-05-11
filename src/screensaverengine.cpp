@@ -23,6 +23,7 @@
 #include <Profile.hrh>
 #include <screensaver.rsg>
 #include <AknUtils.h>
+#include <activitymanager.h>
 
 #include "screensaverengine.h"
 #include "screensaverctrlmovingtext.h"
@@ -31,8 +32,6 @@
 #include "screensaverappui.h"
 #include "ScreensaverUtils.h"
 #include "screensaverutility.h"
-#include "screensaveractivitymanager.h"
-
 
 // Minimum plugin suspension time
 const TInt KMinPluginSuspensionTime = 500000; // 0.5 sec
@@ -43,7 +42,6 @@ const TInt KTimeoutShort = 5;
 const TInt KNoPreview = 0;
 
 const TInt KPreviewTimeout = 10000000; // 10 sec
-const TInt KIgnoreActivityTimeout = 500000; // 0.5 sec
 
 const TText KSilentProfileInd= KPuaCodeSilentSymbol;
 const TText KSilentVibraInd= KPuaCodeAprofSilentVibra;
@@ -77,7 +75,6 @@ CScreensaverEngine::~CScreensaverEngine( )
     delete iIndicatorArray;
     KillTimer( iPreviewTimer );
     KillTimer( iExpiryTimer );
-    KillTimer( iIgnoreActivityResetTimer );
     iAknUiServer.Close();
     }
 
@@ -228,7 +225,6 @@ void CScreensaverEngine::StopScreenSaver()
 void CScreensaverEngine::StartPreviewModeL( )
     {
     SCRLOGGER_WRITEF(_L("SCR: Inside CScreensaverEngine::StartPreviewModeL()") );
-    iActivityManagerScreensaverShort->SetInactivityTimeout(0);
     
     iScreenSaverIsPreviewing = ETrue;
     // Change the display object into what's being previewed
@@ -563,14 +559,14 @@ void CScreensaverEngine::StartActivityMonitoringL( )
 
     // Start monitoring activity for screensaver
     iActivityManagerScreensaver
-        = CScreensaverActivityManager::NewL( CActive::EPriorityStandard );
+        = CUserActivityManager::NewL( CActive::EPriorityStandard );
         iActivityManagerScreensaver->Start( Timeout(), 
             TCallBack( HandleInactiveEventL,this ),
             TCallBack( HandleActiveEventL, this ) );
 
     // Start monitoring activity for screensaver, short timeout
     iActivityManagerScreensaverShort
-        = CScreensaverActivityManager::NewL( CActive::EPriorityUserInput );
+        = CUserActivityManager::NewL( CActive::EPriorityUserInput );
     
         iActivityManagerScreensaverShort->Start( KTimeoutShort, 
             TCallBack( HandleInactiveEventShortL, this ), 
@@ -581,7 +577,7 @@ void CScreensaverEngine::StartActivityMonitoringL( )
 // CScreensaverEngine::StopActivityMonitoring
 // -----------------------------------------------------------------------------
 //
-void CScreensaverEngine::StopActivityMonitoring( CScreensaverActivityManager*& aActivityManager )
+void CScreensaverEngine::StopActivityMonitoring( CUserActivityManager*& aActivityManager )
     {
     if ( aActivityManager )
         {
@@ -733,16 +729,7 @@ TInt CScreensaverEngine::HandleInactiveEventL( TAny* aPtr )
 //
 TInt CScreensaverEngine::HandleActiveEventShortL( TAny* aPtr )
     {
-    SCRLOGGER_WRITE("HandleActiveEventShortL(), stopping saver");
-    CScreensaverEngine* _this= STATIC_CAST(CScreensaverEngine*, aPtr);
-    if ( !_this->iIgnoreNextActivity )
-        {
-        _this->StopScreenSaver();
-        }
-    else
-        {
-        _this->iActivityManagerScreensaverShort->SetInactivityTimeout(0);
-        }
+    SCRLOGGER_WRITE("HandleActiveEventShortL()");
     return KErrNone;
     }
 
@@ -755,10 +742,6 @@ TInt CScreensaverEngine::HandleInactiveEventShortL( TAny* aPtr )
     SCRLOGGER_WRITE("HandleInactiveEventShortL()");
     // Start, if keys are locked and short timeout in use
     CScreensaverEngine* _this= STATIC_CAST(CScreensaverEngine*, aPtr);
-    // Restore inactivity timeout if it was reset at keylock activation
-    _this->iActivityManagerScreensaverShort->SetInactivityTimeout(KTimeoutShort);
-    _this->iIgnoreNextActivity = EFalse;
-    
     if ( _this->iSharedDataI->IsKeyguardOn() )
         {
         SCRLOGGER_WRITE("HandleInactiveEventShortL() starting saver");
@@ -786,53 +769,14 @@ TInt CScreensaverEngine::HandleSuspendTimerExpiry( TAny* aPtr )
     }
 
 // ---------------------------------------------------------------------------
-// CScreensaverEngine::ResetIgnoreFlagCb
-// ---------------------------------------------------------------------------
-//
-TInt CScreensaverEngine::ResetIgnoreFlagCb( TAny* aPtr )
-    {
-    CScreensaverEngine* engine = STATIC_CAST(CScreensaverEngine*, aPtr);
-    engine->KillTimer( engine->iIgnoreActivityResetTimer );
-    engine->iIgnoreNextActivity = EFalse;
-    
-    return KErrNone;
-    }
-
-// ---------------------------------------------------------------------------
 // CScreensaverEngine::HandleKeyguardStateChanged
 // ---------------------------------------------------------------------------
 //
 void CScreensaverEngine::HandleKeyguardStateChanged( TBool aEnabled )
     {
-    KillTimer( iIgnoreActivityResetTimer );
     if ( aEnabled )
         {
-        if ( !iScreenSaverIsOn )
-            {
-            // Start the screensaver, but set the ignore flag in case keylock
-            // was activated using the side switch. The switch will generate
-            // activity that must be ignored.
-            if ( iActivityManagerScreensaverShort->IsMonitoringForActivity() )
-                {
-                // Inactive state, start immediately
-                StartScreenSaver();
-                }
-            else
-                {
-                // Active state, go to inactive and start.
-                iActivityManagerScreensaverShort->SetInactivityTimeout(0);
-                }
-            
-            iIgnoreNextActivity = ETrue;
-            
-            iIgnoreActivityResetTimer = CPeriodic::New( EPriorityLow );
-            if ( iIgnoreActivityResetTimer )
-                {
-                iIgnoreActivityResetTimer->Start( KIgnoreActivityTimeout, 
-                                                  KIgnoreActivityTimeout, 
-                                                  TCallBack( ResetIgnoreFlagCb, this ) );
-                }
-            }
+        StartScreenSaver();
         }
     else
         {
@@ -844,11 +788,15 @@ void CScreensaverEngine::HandleKeyguardStateChanged( TBool aEnabled )
 // 
 // ---------------------------------------------------------------------------
 //
-void CScreensaverEngine::NotifyKeyEventReceived()
+void CScreensaverEngine::HandleActivateSSChanged( TBool aStart )
     {
-    if ( iSharedDataI->IsKeyguardOn() )
+    if ( aStart )
         {
-        iIgnoreNextActivity = ETrue;
+        StartScreenSaver();
+        }
+    else
+        {
+        StopScreenSaver();
         }
     }
 

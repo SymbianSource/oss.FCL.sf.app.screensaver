@@ -199,9 +199,10 @@ TInt CScreensaverSharedDataMonitor::HandlePreviewModeChanged(TAny *aPtr)
 // MMC, screensaver defaults to date & time when MMC removed
 // -----------------------------------------------------------------------------
 //
-TInt CScreensaverSharedDataMonitor::HandleMMCStateChanged(TAny* /*aPtr*/)
+TInt CScreensaverSharedDataMonitor::HandleMMCStateChanged(TAny* aPtr)
     {
     User::ResetInactivityTime();
+    STATIC_CAST(CScreensaverSharedDataMonitor*, aPtr)->Model().StopScreenSaver();
     return KErrNone;
     }
 
@@ -211,10 +212,11 @@ TInt CScreensaverSharedDataMonitor::HandleMMCStateChanged(TAny* /*aPtr*/)
 // MMC, screensaver defaults to date & time when USB attached
 // -----------------------------------------------------------------------------
 //
-TInt CScreensaverSharedDataMonitor::HandleUSBStateChanged(TAny* /*aPtr*/)
+TInt CScreensaverSharedDataMonitor::HandleUSBStateChanged(TAny* aPtr)
     {
     // Same handler as in MMC removal, parameter tells it's because of USB
     User::ResetInactivityTime();
+    STATIC_CAST(CScreensaverSharedDataMonitor*, aPtr)->Model().StopScreenSaver();
     return KErrNone;
     }
 
@@ -289,13 +291,13 @@ TInt CScreensaverSharedDataMonitor::HandleActivateSSChanged( TAny* aPtr )
         {
         // Enable SS
         SCRLOGGER_WRITE("SharedDataMonitor: Activate SS");
-        STATIC_CAST(CScreensaverSharedDataMonitor*, aPtr)->Model().StartScreenSaver();
+        STATIC_CAST(CScreensaverSharedDataMonitor*, aPtr)->Model().HandleActivateSSChanged( ETrue );
         }
     else if ( !activateState )
         {
         // Disable SS
         SCRLOGGER_WRITE("SharedDataMonitor: Stop SS");
-        STATIC_CAST(CScreensaverSharedDataMonitor*, aPtr)->Model().StopScreenSaver();
+        STATIC_CAST(CScreensaverSharedDataMonitor*, aPtr)->Model().HandleActivateSSChanged( EFalse );
         }
     else
         {

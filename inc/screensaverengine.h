@@ -34,7 +34,7 @@
 const TInt KDefaultScreenSaverTimeout = 2 * 60 * 1000000; // 2 mins
 
 // FORWARD DECLARATIONS
-class CScreensaverActivityManager;
+class CUserActivityManager;
 class CScreensaverSharedDataI;
 class CScreensaverSharedDataMonitor;
 class CScreensaverAppUi;
@@ -147,9 +147,10 @@ public:
     void HandleKeyguardStateChanged( TBool aEnabled );
     
     /**
-     * Informs the engine that a key event was received
+     * Informs the engine that a start/stop request was emitted through P&S
+     * @param aStart True if screensaver should be started, false if stopped
      */
-    void NotifyKeyEventReceived();
+    void HandleActivateSSChanged( TBool aStart );
     
 private:
     
@@ -185,7 +186,7 @@ private:
     /**
     * Stops monitoring the user activity
     */
-    void StopActivityMonitoring( CScreensaverActivityManager*& aActivityManager );
+    void StopActivityMonitoring( CUserActivityManager*& aActivityManager );
 
     /**
     * Gets the color model from the resource
@@ -236,11 +237,6 @@ private:
     static TInt HandleSuspendTimerExpiry( TAny* aPtr );
 
     /**
-    * Callback function. Called when activity is no longer ignored
-    */
-    static TInt ResetIgnoreFlagCb( TAny* aPtr );
-    
-    /**
     * Returns the CScreensaverView
     */
     CScreensaverView* View() const;
@@ -278,14 +274,9 @@ private:
     TBool iScreenSaverIsPreviewing;
     
     /**
-    * 
-    */
-    TBool iIgnoreNextActivity;
-    
-    /**
     * The trigger for screensaver activation
     */
-    CScreensaverActivityManager* iActivityManagerScreensaver;
+    CUserActivityManager* iActivityManagerScreensaver;
 
     
     /**
@@ -310,7 +301,7 @@ private:
     /**
     * The trigger for screensaver activation, short timeout
     */
-    CScreensaverActivityManager* iActivityManagerScreensaverShort;
+    CUserActivityManager* iActivityManagerScreensaverShort;
     
     /**
     * moved from view class
@@ -341,11 +332,6 @@ private:
     */
     CPeriodic* iExpiryTimer;
     
-    /**
-     * Timer to ignore activity events after keylock activated.
-     */
-    CPeriodic* iIgnoreActivityResetTimer;
-
     };
 
 

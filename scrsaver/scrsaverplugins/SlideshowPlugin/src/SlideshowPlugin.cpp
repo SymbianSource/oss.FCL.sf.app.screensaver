@@ -264,12 +264,13 @@ TInt CSlideshowPlugin::Draw(CWindowGc& aGc)
         return KErrNone;
         }
     // Make sure we have something to display
-    if (iModel->NumberOfSlides() == 0) 
+    if (iModel->NumberOfSlides() == 0 && iIsLoadFinished ) 
     	{
+    	iHost->RevertToDefaultSaver();
         SSPLOGGER_WRITE("Draw(): Nothing to display, suspending");
         SSPLOGGER_LEAVEFN("Draw()");
 //        iHost->Suspend( -1 ); // This place will be crashed when transform to default type
-        return KErrNotFound;
+        return KErrNone;
         }
     
     CSlideshowSlide* pSlide = iModel->NextSlide(EFalse);
@@ -720,7 +721,7 @@ void CSlideshowPlugin::DrawCentered(CWindowGc& aGc, CSlideshowSlide* aSlide)
 void CSlideshowPlugin::LoadSlidesL()
     {
     SSPLOGGER_ENTERFN("LoadSlidesL()");
-    
+    iIsLoadFinished = EFalse;
     // Based on settings, load predefined set or random slides
     if (iSettings->iSlideshowType == KSlideshowTypeRandom)
         {
@@ -730,7 +731,7 @@ void CSlideshowPlugin::LoadSlidesL()
         {
         LoadSlideSetL();
         }
-    
+    iIsLoadFinished = ETrue;
     SSPLOGGER_LEAVEFN("LoadSlidesL()");
     }
     

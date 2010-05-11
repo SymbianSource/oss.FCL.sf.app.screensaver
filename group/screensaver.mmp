@@ -65,7 +65,6 @@ SOURCE      screensaversubscriber.cpp
 SOURCE      screensaverrepositorywatcher.cpp 
 SOURCE      screensavershareddatamonitor.cpp 
 SOURCE      screensaverengine.cpp 
-SOURCE      screensaveractivitymanager.cpp
 
 START RESOURCE screensaver.rss
 HEADER
@@ -115,6 +114,7 @@ LIBRARY     CentralRepository.lib
 LIBRARY     CenRepNotifHandler.lib
 LIBRARY     efsrv.lib
 LIBRARY     flogger.lib
+LIBRARY     activitymanager.lib
 #ifdef RD_UI_TRANSITION_EFFECTS_PHASE2
 LIBRARY     gfxtrans.lib
 LIBRARY     akntransitionutils.lib
@@ -122,3 +122,4 @@ LIBRARY     akncapserverclient.lib
 #endif
 
 // End of file.
+

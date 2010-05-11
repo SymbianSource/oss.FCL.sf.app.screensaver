@@ -114,7 +114,7 @@ void CScreensaverView::CreateDisplayObjectL( TDisplayObjectType aType )
         case EDisplayNone:
             {
             iControl = CScreensaverCtrlNone::NewL();
-            iIsContentless = ETrue;
+          //  iIsContentless = ETrue;
             break;
             }
             

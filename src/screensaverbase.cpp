@@ -101,6 +101,8 @@ void CScreensaverBase::DrawObject()
     SetRect( Rect() );
     
     DrawNow();
+    
+    StartCaptureScreenTimer();
     }
 
 // -----------------------------------------------------------------------------
@@ -286,7 +288,6 @@ TInt CScreensaverBase::HandleRefreshTimerExpiry( TAny* aPtr )
     SCRLOGGER_WRITEF( _L("SCR: Inside CScreensaverView::HandleRefreshTimerExpiry()") );
     
     control->DrawObject();
-    control->StartCaptureScreenTimer();
     
     return KErrNone;
     }
