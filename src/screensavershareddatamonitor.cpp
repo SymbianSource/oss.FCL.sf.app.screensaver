@@ -25,6 +25,7 @@
 #include <startupdomainpskeys.h>             // kpsglobalsystemstate
 #include <ScreensaverInternalPSKeys.h>
 #include <UikonInternalPSKeys.h>             // kuikmmcinserted
+#include <hwrmpowerstatesdkpskeys.h>
 
 #ifdef RD_UI_TRANSITION_EFFECTS_PHASE2
 #include <akntransitionutils.h>
@@ -68,6 +69,9 @@ CScreensaverSharedDataMonitor::~CScreensaverSharedDataMonitor()
 
     DeleteSubscriber( iActivateSSSubscriber );
     iActivateSSProperty.Close();
+    
+    DeleteSubscriber( iChargerStateSubscriber );
+    iChargerStateProperty.Close();
     }
 
 // -----------------------------------------------------------------------------
@@ -138,8 +142,14 @@ void CScreensaverSharedDataMonitor::ConstructL()
     iShuttingDownSubscriber->SubscribeL();
 
     User::LeaveIfError( iActivateSSProperty.Attach( KPSUidScreenSaver, KScreenSaverActivate ) );
-    iActivateSSSubscriber = new( ELeave ) CSubscriber( TCallBack( HandleActivateSSChanged, this ), iActivateSSProperty );
+    iActivateSSSubscriber = new( ELeave ) CSubscriber( 
+        TCallBack( HandleActivateSSChanged, this ), iActivateSSProperty );
     iActivateSSSubscriber->SubscribeL();
+    
+    User::LeaveIfError( iChargerStateProperty.Attach( KPSUidHWRMPowerState, KHWRMChargingStatus ) );
+    iChargerStateSubscriber = new (ELeave) CSubscriber( 
+        TCallBack( HandleChargerStateChanged, this ), iChargerStateProperty );
+    iChargerStateSubscriber->SubscribeL();
     }
 
 // -----------------------------------------------------------------------------
@@ -240,7 +250,21 @@ TInt CScreensaverSharedDataMonitor::HandleKeyguardStateChanged(TAny* aPtr)
     CScreensaverSharedDataMonitor* _this =
         STATIC_CAST(CScreensaverSharedDataMonitor*, aPtr);
 
-    _this->Model().HandleKeyguardStateChanged( _this->iData->IsKeyguardOn() );
+    if ( _this->iData->IsKeyguardOn() )
+        {
+        // Keys locked - if screensaver is running, this was caused by
+        // automatic keyguard and screensaver should refresh the view
+        // to show the keylock indicator
+        if ( _this->Model().ScreenSaverIsOn() )
+            {
+            _this->View()->UpdateAndRefresh();
+            }
+        _this->Model().StartScreenSaver();
+        }
+    else
+        {
+        _this->Model().StopScreenSaver();
+        }
 
     return KErrNone;
     }
@@ -280,7 +304,10 @@ TInt CScreensaverSharedDataMonitor::HandleShuttingDownStateChanged( TAny* /*aPtr
     return KErrNone;
     }
 
-
+// ---------------------------------------------------------------------------
+// CScreensaverSharedDataMonitor::HandleActivateSSChanged
+// ---------------------------------------------------------------------------
+//
 TInt CScreensaverSharedDataMonitor::HandleActivateSSChanged( TAny* aPtr )
     {
     TInt activateState = -1;
@@ -291,13 +318,13 @@ TInt CScreensaverSharedDataMonitor::HandleActivateSSChanged( TAny* aPtr )
         {
         // Enable SS
         SCRLOGGER_WRITE("SharedDataMonitor: Activate SS");
-        STATIC_CAST(CScreensaverSharedDataMonitor*, aPtr)->Model().HandleActivateSSChanged( ETrue );
+        STATIC_CAST(CScreensaverSharedDataMonitor*, aPtr)->Model().StartScreenSaver();
         }
     else if ( !activateState )
         {
         // Disable SS
         SCRLOGGER_WRITE("SharedDataMonitor: Stop SS");
-        STATIC_CAST(CScreensaverSharedDataMonitor*, aPtr)->Model().HandleActivateSSChanged( EFalse );
+        STATIC_CAST(CScreensaverSharedDataMonitor*, aPtr)->Model().StopScreenSaver();
         }
     else
         {
@@ -306,5 +333,34 @@ TInt CScreensaverSharedDataMonitor::HandleActivateSSChanged( TAny* aPtr )
     return KErrNone;
     }
 
+// ---------------------------------------------------------------------------
+// CScreensaverSharedDataMonitor::HandleChargerStateChanged
+// ---------------------------------------------------------------------------
+//
+TInt CScreensaverSharedDataMonitor::HandleChargerStateChanged( TAny* aPtr )
+    {
+    TInt state = -1;
+    
+    RProperty::Get( KPSUidHWRMPowerState, KHWRMChargingStatus, state );
+    
+    switch ( state )
+        {
+        case EChargingStatusError: // Some error has occurred when charger is connected or charging. 
+        case EChargingStatusNotConnected: // Charger not connected/uninitialized
+        case EChargingStatusCharging: // Device is charging
+            {
+            User::ResetInactivityTime();
+            STATIC_CAST(CScreensaverSharedDataMonitor*, aPtr)->Model().StopScreenSaver();
+            }
+            break;
+        case EChargingStatusChargingComplete: // Charging completed
+        case EChargingStatusNotCharging: // Charger is connected, device not charging
+        case EChargingStatusAlmostComplete: // Charging almost completed
+        case EChargingStatusChargingContinued: // Charging continued after brief interruption
+        default:
+            break;
+        }
+    return KErrNone;
+    }
 
 // End of file

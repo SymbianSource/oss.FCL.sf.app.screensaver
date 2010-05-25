@@ -103,14 +103,14 @@ void CScreensaverView::CreateDisplayObjectL( TDisplayObjectType aType )
                 }
             break;
             }
-            
         case EDisplayTime:
         case EDisplayText:
+#ifdef USE_DATE_AND_TEXT   
             {
             iControl = CScreensaverCtrlMovingText::NewL( aType );
             break;
             }
-            
+#endif
         case EDisplayNone:
             {
             iControl = CScreensaverCtrlNone::NewL();

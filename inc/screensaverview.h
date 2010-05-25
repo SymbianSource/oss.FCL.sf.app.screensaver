@@ -60,7 +60,7 @@ public:
     /**
     * Creates the display object by the parameter
     * 
-    * @param the object factory object, default type is EDisplayTime
+    * @param the object factory object, default type is EDisplayNone
     */
     void CreateDisplayObjectL( TDisplayObjectType aType );
     

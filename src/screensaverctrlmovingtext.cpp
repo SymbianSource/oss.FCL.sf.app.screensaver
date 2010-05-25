@@ -15,7 +15,7 @@
 *
 */
 
-
+#ifdef USE_DATE_AND_TEXT
 
 #include <e32def.h>
 #include <eikdef.h>
@@ -587,4 +587,5 @@ void CScreensaverCtrlMovingText::StartBarRefreshTimer()
         initialRefreshRate, KRefreshRate );
     }
 
+#endif //USE_DATE_AND_TEXT
 // End of file.

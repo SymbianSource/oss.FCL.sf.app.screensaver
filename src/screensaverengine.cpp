@@ -37,7 +37,7 @@
 const TInt KMinPluginSuspensionTime = 500000; // 0.5 sec
 
 // Inactivity timeout in seconds when keys locked
-const TInt KTimeoutShort = 5;
+const TInt KTimeoutShort = 5000000;
 
 const TInt KNoPreview = 0;
 
@@ -70,7 +70,6 @@ CScreensaverEngine* CScreensaverEngine::NewL()
 CScreensaverEngine::~CScreensaverEngine( )
     {
     StopActivityMonitoring( iActivityManagerScreensaver );
-    StopActivityMonitoring( iActivityManagerScreensaverShort );
     DisableSharedDataAndMonitor();
     delete iIndicatorArray;
     KillTimer( iPreviewTimer );
@@ -186,6 +185,11 @@ void CScreensaverEngine::StartScreenSaver( )
 void CScreensaverEngine::StopScreenSaver()
     {
     SCRLOGGER_WRITE("Stopping Screensaver");
+
+    if ( !iScreenSaverIsPreviewing && iSharedDataI->IsKeyguardOn() )
+        {
+        StartPauseTimer();
+        }
 
     if( iScreenSaverIsOn )
         {
@@ -563,14 +567,6 @@ void CScreensaverEngine::StartActivityMonitoringL( )
         iActivityManagerScreensaver->Start( Timeout(), 
             TCallBack( HandleInactiveEventL,this ),
             TCallBack( HandleActiveEventL, this ) );
-
-    // Start monitoring activity for screensaver, short timeout
-    iActivityManagerScreensaverShort
-        = CUserActivityManager::NewL( CActive::EPriorityUserInput );
-    
-        iActivityManagerScreensaverShort->Start( KTimeoutShort, 
-            TCallBack( HandleInactiveEventShortL, this ), 
-            TCallBack( HandleActiveEventShortL, this ) );
     }
 
 // -----------------------------------------------------------------------------
@@ -663,6 +659,26 @@ void CScreensaverEngine::StartPreviewTimer()
         KPreviewTimeout,KPreviewTimeout);
     }
 
+// ----------------------------------------------------------------------------
+// CScreensaverEngine::StartPauseTimer
+// -----------------------------------------------------------------------------
+//
+void CScreensaverEngine::StartPauseTimer()
+    {
+    KillTimer( iPauseTimer );
+    
+    TRAP_IGNORE( iPauseTimer = CPeriodic::NewL( CActive::EPriorityHigh ) );
+    
+    if ( !iPauseTimer )
+        {
+        HandlePauseTimerExpiry( this );
+        return;
+        }
+    
+    iPauseTimer->Start( KTimeoutShort, KTimeoutShort, TCallBack(
+        HandlePauseTimerExpiry, this ) );
+    }
+
 // -----------------------------------------------------------------------------
 // CScreensaverEngine::KillTimer
 // Stops and deletes a timer
@@ -690,6 +706,24 @@ TInt CScreensaverEngine::HandlePreviewTimerExpiry( TAny* aPtr )
     Engine->KillTimer( Engine->iPreviewTimer );
     Engine->StopScreenSaver();
     
+    return KErrNone;
+    }
+
+// ---------------------------------------------------------------------------
+// CScreensaverEngine::HandlePauseTimerExpiry
+// ---------------------------------------------------------------------------
+//
+TInt CScreensaverEngine::HandlePauseTimerExpiry( TAny* aPtr )
+    {
+    CScreensaverEngine* _this= STATIC_CAST(CScreensaverEngine*, aPtr);
+    _this->KillTimer( _this->iPauseTimer );
+
+    if ( _this->iSharedDataI->IsKeyguardOn() )
+        {
+        SCRLOGGER_WRITE("HandleInactiveEventShortL() starting saver");
+        _this->StartScreenSaver( );
+        }
+
     return KErrNone;
     }
 
@@ -724,34 +758,6 @@ TInt CScreensaverEngine::HandleInactiveEventL( TAny* aPtr )
     }
 
 // -----------------------------------------------------------------------------
-// CScreensaverEngine::HandleActiveEventShortL
-// -----------------------------------------------------------------------------
-//
-TInt CScreensaverEngine::HandleActiveEventShortL( TAny* aPtr )
-    {
-    SCRLOGGER_WRITE("HandleActiveEventShortL()");
-    return KErrNone;
-    }
-
-// -----------------------------------------------------------------------------
-// CScreensaverEngine::HandleInactiveEventShortL
-// -----------------------------------------------------------------------------
-//
-TInt CScreensaverEngine::HandleInactiveEventShortL( TAny* aPtr )
-    {
-    SCRLOGGER_WRITE("HandleInactiveEventShortL()");
-    // Start, if keys are locked and short timeout in use
-    CScreensaverEngine* _this= STATIC_CAST(CScreensaverEngine*, aPtr);
-    if ( _this->iSharedDataI->IsKeyguardOn() )
-        {
-        SCRLOGGER_WRITE("HandleInactiveEventShortL() starting saver");
-        _this->StartScreenSaver( );
-        }
-
-    return KErrNone;
-    }
-
-// -----------------------------------------------------------------------------
 // CScreensaverEngine::HandleSuspendTimerExpiry
 // -----------------------------------------------------------------------------
 //
@@ -766,38 +772,6 @@ TInt CScreensaverEngine::HandleSuspendTimerExpiry( TAny* aPtr )
     control->View()->ShowDisplayObject();
 
     return KErrNone;
-    }
-
-// ---------------------------------------------------------------------------
-// CScreensaverEngine::HandleKeyguardStateChanged
-// ---------------------------------------------------------------------------
-//
-void CScreensaverEngine::HandleKeyguardStateChanged( TBool aEnabled )
-    {
-    if ( aEnabled )
-        {
-        StartScreenSaver();
-        }
-    else
-        {
-        StopScreenSaver();
-        }
-    }
-
-// ---------------------------------------------------------------------------
-// 
-// ---------------------------------------------------------------------------
-//
-void CScreensaverEngine::HandleActivateSSChanged( TBool aStart )
-    {
-    if ( aStart )
-        {
-        StartScreenSaver();
-        }
-    else
-        {
-        StopScreenSaver();
-        }
     }
 
 // -----------------------------------------------------------------------------

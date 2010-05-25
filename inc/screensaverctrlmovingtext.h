@@ -15,7 +15,7 @@
 *
 */
 
-
+#ifdef USE_DATE_AND_TEXT
 
 #ifndef C_SCREENSAVERCTRLMOVINGTEXT_H
 #define C_SCREENSAVERCTRLMOVINGTEXT_H
@@ -257,4 +257,5 @@ private://data
 
 #endif // C_SCREENSAVERCTRLMOVINGTEXT_H
 
+#endif // USE_DATE_AND_TEXT
 // End of file.

@@ -138,19 +138,6 @@ public:
      * microseconds. 0 or negative value will disable the timer.
      */
     void SetExpiryTimerTimeout( TInt aTimeout );
-
-    
-    /**
-    * Informs the engine about changes in keyguard state
-    * @param aEnabled whether the keyguard is now on or off 
-    */
-    void HandleKeyguardStateChanged( TBool aEnabled );
-    
-    /**
-     * Informs the engine that a start/stop request was emitted through P&S
-     * @param aStart True if screensaver should be started, false if stopped
-     */
-    void HandleActivateSSChanged( TBool aStart );
     
 private:
     
@@ -199,6 +186,11 @@ private:
     void StartPreviewTimer();
     
     /**
+     * Starts pause timer
+     */
+    void StartPauseTimer();
+    
+    /**
     * Kill the timer
     * 
     * @param aTimer the timer you want stop
@@ -220,21 +212,16 @@ private:
     * Called when the time that the user did no activity is out.
     */
     static TInt HandleInactiveEventL(TAny* aPtr);
-
-    /**
-    * Called when the time that the user did activity is out.
-    */
-    static TInt HandleActiveEventShortL(TAny* aPtr);    
-    
-    /**
-    * Called when the time that the user did no activity is out.
-    */
-    static TInt HandleInactiveEventShortL(TAny* aPtr);
     
     /**
     * Callback fuction. Called when the suspension tiemr time out
     */
     static TInt HandleSuspendTimerExpiry( TAny* aPtr );
+    
+    /**
+    * Callback function. Called when the pause timer expires
+    */
+    static TInt HandlePauseTimerExpiry( TAny* aPtr );
 
     /**
     * Returns the CScreensaverView
@@ -299,11 +286,6 @@ private:
     CScreensaverIndicatorArray* iIndicatorArray;
     
     /**
-    * The trigger for screensaver activation, short timeout
-    */
-    CUserActivityManager* iActivityManagerScreensaverShort;
-    
-    /**
     * moved from view class
     */
     TScreensaverColorModel iColorModel;
@@ -331,6 +313,12 @@ private:
     * Owned.
     */
     CPeriodic* iExpiryTimer;
+    
+    /**
+    * Pause timer. Used to reactivate screensaver after 5s when being 
+	* interrupted and keys are locked
+    */
+    CPeriodic* iPauseTimer;
     
     };
 

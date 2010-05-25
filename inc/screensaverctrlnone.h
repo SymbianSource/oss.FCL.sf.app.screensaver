@@ -78,6 +78,12 @@ public:
     */
     void SizeChanged();
     
+    /**
+     * Draw
+     * @see CCoeControl::Draw(const TRect& aRect)
+     */
+    void Draw( const TRect& aRect ) const;
+    
 private:
 
     /**

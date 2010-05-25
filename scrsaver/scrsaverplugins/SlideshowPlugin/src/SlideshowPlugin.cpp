@@ -37,7 +37,11 @@
 #include <ecom/ecom.h>
 
 #include <ContentListingFactory.h>
-#include <MCLFItem.h>
+#include <mdeobjectdef.h>
+#include <mdelogiccondition.h>
+#include <mdenamespacedef.h>
+#include <mdeconstants.h>
+#include <mdeobjectquery.h>
 
 #include <slideshowplugin.rsg>
 
@@ -47,6 +51,7 @@
 
 // Constants
 const TInt KSecsToMicros = 1000000;
+const TUint KDefaultRandomLoadingNumber = 100;
 
 // Slideshow duration times (secs)
 const TInt KMinSlideshowTime = 1;
@@ -130,8 +135,7 @@ CSlideshowPlugin::~CSlideshowPlugin()
     delete iModel;
 
     // First model, then engine, otherwise bad things happen
-    delete iCLFModel;
-    delete iCLFEngine;
+    delete iMdESession;
     
     // Logging done
     SSPLOGGER_DELETE;
@@ -174,9 +178,6 @@ void CSlideshowPlugin::ConstructL()
 
     // Read settings
     ReadSettings();
-    
-    // Make sure random slides are loaded
-    iCLFModelUpToDate = EFalse;    
  
     iTimerUpdated = EFalse;
     }
@@ -231,9 +232,6 @@ TInt CSlideshowPlugin::InitializeL(MScreensaverPluginHost *aHost)
     
     // Load slides on start rather than here
     // LoadSlidesL();
-
-    // Make sure random slides are loaded
-    iCLFModelUpToDate = EFalse;
 
     SSPLOGGER_LEAVEFN("InitializeL()");
     
@@ -424,33 +422,12 @@ TInt CSlideshowPlugin::HandleScreensaverEventL(
     return KErrNone;
     }  
 
-
-// -----------------------------------------------------------------------------
-// From MCLFOperationObserver. Called by CLF when e.g. a content listing
-// operation is finished.
-// -----------------------------------------------------------------------------    
-void CSlideshowPlugin::HandleOperationEventL(TCLFOperationEvent aOperationEvent,
-                                             TInt aError)
-    {
-    if (aOperationEvent == ECLFRefreshComplete)
-        {
-        iCLFError = aError;
-        EndWaitForCLF();
-        }
-
-    if (aOperationEvent == ECLFModelOutdated)
-        {
-        // Need to update random list on next start
-        iCLFModelUpToDate = EFalse;
-        }
-    }
-
-
 // -----------------------------------------------------------------------------
 // CSlideshowPlugin::ReadSettings
 // -----------------------------------------------------------------------------
 TInt CSlideshowPlugin::ReadSettings()
     {
+    
     TInt err = KErrNone;
     
     err = iSlideshowRepository->Get(
@@ -811,88 +788,16 @@ void CSlideshowPlugin::LoadSlideSetL()
 void CSlideshowPlugin::LoadRandomSlidesL()
     {
     SSPLOGGER_ENTERFN("LoadRandomSlidesL()");
-    
-    // No need to do anything, if model hasn't become
-    // outdated since last loading
-    if (iCLFModelUpToDate)
-        {
-        return;
-        }
-    
+
     // Start by getting rid of possibly loaded slides
     iModel->DeleteAll();
 
-    // Make sure CLF is ready
-    ConnectToCLFL();
+    // connect to MDS
+    ConnectToMDSSessionL();
 
-    // Refresh CLF model
-    iCLFError = KErrNone;
-    iCLFModel->RefreshL();
+    // Wait for query of MDS to complete before continuing
+    WaitForMDS();
 
-    // Wait for refresh to complete before continuing
-    WaitForCLF();
-
-    // On error bail out
-    if (iCLFError != KErrNone)
-        {
-        SSPLOGGER_WRITEF(_L("SSP: CLF refresh error %d"), iCLFError);
-        return;
-        }
-
-    // Model is up to date
-    iCLFModelUpToDate = ETrue;
-
-    // CLF model should now contain the image files in Gallery, proceed to
-    // load into our model
-    TInt nItems = iCLFModel->ItemCount();
-
-    // Loop through, add filenames
-    TInt count = 0;
-    for (TInt i = 0; i < nItems; i++)
-        {
-        // TFileName fileName;
-        TPtrC fileName;
-        TInt error = KErrNone;
-        
-        const MCLFItem& item = iCLFModel->Item(i);
-        
-        error = item.GetField(ECLFFieldIdFileNameAndPath, fileName);
-
-        // If OK, add to model
-        if (error == KErrNone)
-            {
-            // Check that the file exists. If not, it is still OK, if it is
-            // on the memory card - it may show up later. Omit files from other
-            // drives that do not exist at the time of loading
-            // TODO: Can be removed, as slides are loaded on every start
-            TBool exists = BaflUtils::FileExists(iEikEnv->FsSession(), fileName);
-            TBool isOnMC = SlideshowUtil::IsOnMC(fileName);
-
-            if (!exists)  // && (!isOnMC))
-                {
-                // Do not add nonexisting files from other than memory card
-                continue;
-                }
-#if 0
-            // Check that the file's DRM rights allow it to be displayed (if not
-            // missing because not on MMC
-            if (!SlideshowUtil::DRMCheck(fileName))
-                {
-                // No point in adding files that cannot be displayed anyway
-                continue;
-                }
-#endif        
-            // Create a slide with the filename and store it in the model
-            CSlideshowSlide* pSlide = CSlideshowSlide::NewL(fileName, isOnMC);
-            CleanupStack::PushL(pSlide);
-            iModel->AppendSlideL(pSlide);
-            CleanupStack::Pop(pSlide);
-
-            SSPLOGGER_WRITEF(_L("SSP: Slide %d added, file: %S"), count, &fileName);
-            count++;
-            }
-        }
-    
     SSPLOGGER_LEAVEFN("LoadRandomSlidesL()");
     }
 
@@ -1025,35 +930,23 @@ TInt CSlideshowPlugin::SettingsChanged()
 
 
 // -----------------------------------------------------------------------------
-// CSlideshowPlugin::ConnectToCLFL
-// Connects to Content Listing Framework. Can be called many times,
+// CSlideshowPlugin::ConnectToMDSSessionL
+// Connects to MDS Listing Framework. Can be called many times,
 // connects only once
 // -----------------------------------------------------------------------------
-void CSlideshowPlugin::ConnectToCLFL()
+void CSlideshowPlugin::ConnectToMDSSessionL()
     {
-    if (!iCLFEngine)
+    if (!iMdESession)
         {
-        iCLFEngine = ContentListingFactory::NewContentListingEngineLC();
-        CleanupStack::Pop();  // LC
+        iMdESession = CMdESession::NewL( *this );
         }
-    
-    if (!iCLFModel)
-        {
-        iCLFModel = iCLFEngine->CreateListModelLC(*this);
-        CleanupStack::Pop();  // LC
-        }
-
-    // Set image types to model
-    RArray<TInt> typeArray;
-    CleanupClosePushL(typeArray);
-    typeArray.AppendL(ECLFMediaTypeImage);
-    iCLFModel->SetWantedMediaTypesL(typeArray.Array());
-    CleanupStack::PopAndDestroy(&typeArray);
     }
 
-
-// Begins wait for CLF 
-void CSlideshowPlugin::WaitForCLF()
+// -----------------------------------------------------------------------------
+// CSlideshowPlugin::WaitForMDS
+// Begins wait for MDS session connected 
+// -----------------------------------------------------------------------------
+void CSlideshowPlugin::WaitForMDS()
     {
     if (iWaitActive)
         {
@@ -1066,9 +959,11 @@ void CSlideshowPlugin::WaitForCLF()
         }
     }
 
-
-// Ends wait for CLF
-void CSlideshowPlugin::EndWaitForCLF()
+// -----------------------------------------------------------------------------
+// CSlideshowPlugin::WaitForMDS
+// Ends wait for MDS
+// -----------------------------------------------------------------------------
+void CSlideshowPlugin::EndWaitForMDS()
     {
     if (!iWaitActive)
         {
@@ -1080,5 +975,152 @@ void CSlideshowPlugin::EndWaitForCLF()
         iWaitActive = EFalse;
         }
     }
-    
+
+// -----------------------------------------------------------------------------
+// CSlideshowPlugin::HandleSessionOpened
+// Session is open successfully, then start a query for images
+// -----------------------------------------------------------------------------
+void CSlideshowPlugin::HandleSessionOpened(CMdESession& /*aSession*/, TInt aError)
+    {
+    if ( KErrNone != aError )
+        {
+        // Error occurred when opening session. iMdeSession must be deleted and new
+        // session opened if we wish to use MdE.
+        delete iMdESession;
+        iMdESession = NULL;
+        return;
+        }
+    // The session was opened successfully.
+    TRAP(aError, OpenQueryL() );
+    }
+
+// -----------------------------------------------------------------------------
+// CSlideshowPlugin::OpenQueryL
+// -----------------------------------------------------------------------------
+void CSlideshowPlugin::OpenQueryL()
+    {
+    CMdENamespaceDef& defaultNamespaceDef = iMdESession->GetDefaultNamespaceDefL();
+    CMdEObjectDef& imageObjDef = defaultNamespaceDef.GetObjectDefL( MdeConstants::Image::KImageObject );
+
+    // query objects with object definition "Image"
+    CMdEObjectQuery* query = iMdESession->NewObjectQueryL( defaultNamespaceDef, imageObjDef, this );
+
+    query->FindL( KDefaultRandomLoadingNumber );
+    }
+
+// -----------------------------------------------------------------------------
+// CSlideshowPlugin::HandleSessionError
+// error happened when open the session, close session and end the waiting
+// -----------------------------------------------------------------------------
+void CSlideshowPlugin::HandleSessionError(CMdESession& /*aSession*/, TInt /*aError*/)
+    {
+    if ( iMdESession )
+        {
+        delete iMdESession;
+        iMdESession = NULL;
+        }
+    // error happened when open the session, so end the waiting for MDS session.
+    EndWaitForMDS();
+    }
+
+// -----------------------------------------------------------------------------
+// CSlideshowPlugin::HandleQueryCompleted
+// query completed, load the images
+// -----------------------------------------------------------------------------
+void CSlideshowPlugin::HandleQueryCompleted(CMdEQuery& aQuery, TInt aError)
+    {
+    if ( aError == KErrNone )
+        {
+        LoadImagesToModel( aQuery );
+        }
+    EndWaitForMDS();
+    }
+
+// -----------------------------------------------------------------------------
+// CSlideshowPlugin::HandleQueryCompleted
+// part of query completed, load the completed images
+// -----------------------------------------------------------------------------
+void CSlideshowPlugin::HandleQueryNewResults( CMdEQuery& aQuery,
+                                              TInt aFirstNewItemIndex,
+                                              TInt aNewItemCount)
+    {
+    LoadImagesToModel( aQuery, aFirstNewItemIndex, aNewItemCount );
+    EndWaitForMDS();
+    }
+
+// -----------------------------------------------------------------------------
+// CSlideshowPlugin::LoadImagesToModel
+// load the images when query is successfully
+// -----------------------------------------------------------------------------
+void CSlideshowPlugin::LoadImagesToModel(const CMdEQuery& aQuery,
+                                         TInt aFirstNewItemIndex,
+                                         TInt aNewItemCount)
+    {
+    CMdEObjectQuery& query= ( CMdEObjectQuery& ) aQuery;
+    // query is completed
+    if( aQuery.Count() > 0 )
+        {
+        // some items were found!
+        // Loop through, add filenames
+        TInt startIndex = aFirstNewItemIndex;
+        TInt nItem = aNewItemCount;
+        if ( aFirstNewItemIndex == 0 && aFirstNewItemIndex == aNewItemCount )
+            {
+            startIndex = 0;
+            nItem = aQuery.Count();
+            }
+        TInt count = 0;
+        for ( ; startIndex < nItem; startIndex++)
+            {
+            // TFileName fileName;
+            TBufC<256> fileName;
+
+            const CMdEObject& obj = query.Result(startIndex);
+            fileName = obj.Uri();
+
+            // Check that the file exists. If not, it is still OK, if it is
+            // on the memory card - it may show up later. Omit files from other
+            // drives that do not exist at the time of loading
+            // TODO: Can be removed, as slides are loaded on every start
+            TBool exists = BaflUtils::FileExists(iEikEnv->FsSession(), fileName);
+            TBool isOnMC = SlideshowUtil::IsOnMC(fileName);
+
+            if (!exists)  // && (!isOnMC))
+                {
+                // Do not add nonexisting files from other than memory card
+                continue;
+                }
+#if 0
+            // Check that the file's DRM rights allow it to be displayed (if not
+            // missing because not on MMC
+            if (!SlideshowUtil::DRMCheck(fileName))
+                {
+                // No point in adding files that cannot be displayed anyway
+                continue;
+                }
+#endif        
+            // Create a slide with the filename and store it in the model
+            TRAPD(err, AppendSlideToModelL( fileName, isOnMC ) );
+            if ( KErrNone != err )
+                {
+                // appending error, go on to append next slide
+                continue;
+                }
+            SSPLOGGER_WRITEF(_L("SSP: Slide %d added, file: %S"), count, &fileName);
+            count++;
+            }
+        }
+    }
+
+// -----------------------------------------------------------------------------
+// CSlideshowPlugin::AppendSlideToModelL
+// Add slide to model
+// -----------------------------------------------------------------------------
+void CSlideshowPlugin::AppendSlideToModelL(TDesC& aFileName, TBool aIsOnMC)
+    {
+    CSlideshowSlide* pSlide = CSlideshowSlide::NewL(aFileName, aIsOnMC);
+    CleanupStack::PushL(pSlide);
+    iModel->AppendSlideL(pSlide);
+    CleanupStack::Pop(pSlide);
+    }
 // End Of file.

@@ -121,5 +121,7 @@ LIBRARY     akntransitionutils.lib
 LIBRARY     akncapserverclient.lib
 #endif
 
+EPOCHEAPSIZE 0x5000 0x2000000
+
 // End of file.
 

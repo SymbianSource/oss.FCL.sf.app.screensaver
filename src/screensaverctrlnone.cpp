@@ -94,17 +94,21 @@ void CScreensaverCtrlNone::DrawObject()
     {
     SCRLOGGER_WRITEF( _L("SCR:CScreensaverCtrlNone::DrawObject start") );
     SwitchDisplayState( KDisplayOff );
-    
     SwitchLights( ESSForceLightsOff );
+    DrawNow();
     }
 
 // -----------------------------------------------------------------------------
 // CScreensaverCtrlNone::HandleResourceChange
 // -----------------------------------------------------------------------------
 //
-void CScreensaverCtrlNone::HandleResourceChange(TInt /*aType*/)
+void CScreensaverCtrlNone::HandleResourceChange(TInt aType)
     {
-    // Nothing to be implemented
+    if ( aType == KEikDynamicLayoutVariantSwitch )//&& iType != EDisplayNone)
+        {
+        // Screen layout has changed - resize
+        SetRect( iCoeEnv->ScreenDevice()->SizeInPixels() );
+        }
     }
 
 // -----------------------------------------------------------------------------
@@ -114,6 +118,23 @@ void CScreensaverCtrlNone::HandleResourceChange(TInt /*aType*/)
 void CScreensaverCtrlNone::SizeChanged()
     {
     // Nothing to be implemented
+    }
+
+// ---------------------------------------------------------------------------
+// CScreensaverCtrlNone::Draw
+// ---------------------------------------------------------------------------
+//
+void CScreensaverCtrlNone::Draw( const TRect& aRect ) const
+    {
+    if ( !Model().ScreenSaverIsOn() && !Model().ScreenSaverIsPreviewing() )
+        {
+        return;
+        }
+
+    SCRLOGGER_WRITEF( _L("SCR:CScreensaverCtrlNone::Draw, screensaver is on or previewing") );
+    CWindowGc& gc = SystemGc();
+    gc.SetBrushColor( KRgbBlack );
+    gc.Clear( aRect );
     }
 
 // -----------------------------------------------------------------------------
@@ -130,6 +151,9 @@ CScreensaverCtrlNone::CScreensaverCtrlNone()
 //
 void CScreensaverCtrlNone::ConstructL()
     {
+    CreateWindowL();
+    SetRect( iCoeEnv->ScreenDevice()->SizeInPixels() );
+    ActivateL();
     }
 
 // -----------------------------------------------------------------------------

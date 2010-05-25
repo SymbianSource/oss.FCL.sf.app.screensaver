@@ -109,7 +109,15 @@ private:
     */
     static TInt HandleShuttingDownStateChanged(TAny* aPtr);
 
+    /**
+    * Callback function. Called when a start/stop request is received
+    */
     static TInt HandleActivateSSChanged( TAny* aPtr );
+    
+    /**
+    * Callback function. Called when charger state changes
+    */
+    static TInt HandleChargerStateChanged( TAny* aPtr );
 
 private:
     
@@ -156,6 +164,12 @@ private:
 
     RProperty iActivateSSProperty;
     CSubscriber* iActivateSSSubscriber;
+    
+    /*
+    * Charger state property and subscriber
+    */
+    RProperty iChargerStateProperty;
+    CSubscriber* iChargerStateSubscriber;
 
     };
 

@@ -33,6 +33,8 @@
 #include <MCLFOperationObserver.h>
 #include <MCLFContentListingEngine.h>
 #include <MCLFItemListModel.h>
+#include <mdesession.h>
+#include <mdequery.h>
 
 #include "SlideshowModel.h"
 #include "SlideshowSlide.h"
@@ -42,7 +44,6 @@ class CEikonEnv;
 class CDRMHelper;
 class CRepositoryWatcher;
 class CRepository;
-
 
 /**
 *  Encapsulates the Settings that are written into the central repository
@@ -77,7 +78,8 @@ public:
 *  @since 3.1
 */
 class CSlideshowPlugin: public CScreensaverPluginInterfaceDefinition,
-                        public MCLFOperationObserver
+                        public MMdESessionObserver,
+                        public MMdEQueryObserver
     {
     enum TPluginState   
         {
@@ -163,21 +165,58 @@ public: // Functions From CScreensaverPluginInterfaceDefinition
         TScreensaverEvent aEvent,
         TAny* aData );                           
 
-
-public: // From MCLFOperationObserver
+public: // from MMdESessionObserver
+    /**
+     * Called to notify the observer that opening the session has been 
+     * completed and, if the opening succeeded, the session is ready for use.
+     *
+     * @param aSession session
+     * @param aError   <code>KErrNone</code>, if opening the session succeeded;
+     *                 or one of the system-wide error codes, if opening the 
+     *                 session failed
+     */
+    void HandleSessionOpened(CMdESession& aSession, TInt aError);
 
     /**
-     * From MCLFOperationObserver. Called by CLF when e.g. a content listing
-     * operation is finished.
-     * @since S60 3.1
-     * @param aOperationEvent Operation event code of the event
-     * @param aError System wide error code if the operation did not
-     *        succeed.
+     * Called to notify the observer about errors, which are not a direct 
+     * consequence of the operations initiated by the client but caused by 
+     * some external source (e.g., other clients). The error cannot be 
+     * recovered and all on-going operations initiated by the client have been 
+     * aborted. Any attempts to continue using the session will cause a panic. 
+     * The client should close the session immediately and try to open a new 
+     * session, if it needs to continue using the metadata engine.
+     *
+     * @param aSession session
+     * @param aError one of the system-wide error codes
      */
-    virtual void HandleOperationEventL(TCLFOperationEvent aOperationEvent,
-                                       TInt aError);
+    void HandleSessionError(CMdESession& aSession, TInt aError);
+    
+public: // from MMdEQueryObserver
+    /**
+     * Called to notify the observer that new results have been received 
+     * in the query.
+     *
+     * @param aQuery              Query instance that received new results.
+     * @param aFirstNewItemIndex  Index of the first new item that was added
+     *                            to the result item array.
+     * @param aNewItemCount       Number of items added to the result item 
+     *                            array.
+     */
+    void HandleQueryNewResults(CMdEQuery& aQuery,
+                               TInt aFirstNewItemIndex,
+                               TInt aNewItemCount);
 
-
+    /**
+     * Called to notify the observer that the query has been completed,
+     * or that an error has occured.
+     *
+     * @param aQuery  Query instance.
+     * @param aError  <code>KErrNone</code>, if the query was completed
+     *                successfully. Otherwise one of the system-wide error 
+     *                codes.
+     */
+    void HandleQueryCompleted(CMdEQuery& aQuery, TInt aError);
+    
 public: // New Functions
     
     /**
@@ -259,9 +298,14 @@ private: // New functions
 
     TInt SettingsChanged();
 
-    void ConnectToCLFL();
-    void WaitForCLF();
-    void EndWaitForCLF();
+    void ConnectToMDSSessionL();
+    void WaitForMDS();
+    void EndWaitForMDS();
+    void LoadImagesToModel(const CMdEQuery& aQuery,
+                           TInt aFirstNewItemIndex = 0,
+                           TInt aNewItemCount = 0);
+    void AppendSlideToModelL(TDesC& aFileName, TBool aIsOnMC);
+    void OpenQueryL();
     
 private:
     // Pointer to the screensaver host
@@ -297,29 +341,19 @@ private:
     // Localised name
     HBufC* iScreensaverName;
 
-    // Gallery content listing engine
-    MCLFContentListingEngine* iCLFEngine;
-            
-    // Gallery content listing model
-    MCLFItemListModel* iCLFModel;
-
-    // CLF status
-    TInt iCLFError;
-    
-    // CLF model state
-    TBool iCLFModelUpToDate;
-
-    
     // Waiter
     CActiveSchedulerWait iWaiter;
     TBool iWaitActive;
-    
+
     // Draw count
     TInt iDrawCount;
     TBool iTimerUpdated;
-    
+
     //loading state
     TBool iIsLoadFinished;
+
+    // MDS session
+    CMdESession* iMdESession;
     };  
 
 

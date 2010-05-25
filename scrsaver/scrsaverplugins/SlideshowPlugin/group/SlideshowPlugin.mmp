@@ -77,6 +77,7 @@ LIBRARY avkon.lib
 LIBRARY eikdlg.lib
 LIBRARY eikcore.lib
 LIBRARY eikcoctl.lib
+LIBRARY mdeclient.lib
 
 // LIBRARY         AknLayout2.lib           // Scalable UI
 // LIBRARY         AknLayout2Scalable.lib   // Scalable UI

@@ -834,6 +834,9 @@ TInt CScreensaverSharedDataI::HandleDisplayObjChanged(TAny* aPtr)
 //
 void CScreensaverSharedDataI::GetDefaultType()
     {
+/*
+default type is hardcoded, so commented out below code.
+Remove the comment when default type is read from CenRep.
     //Store the default screensaver for this device
     TBuf<16> screensaverName;
     
@@ -854,8 +857,16 @@ void CScreensaverSharedDataI::GetDefaultType()
             iDefaultType = EDisplayTime;
             }
         }
-    
+*/  
+      
+#ifdef USE_DATE_AND_TEXT
     iDefaultType = EDisplayTime;
+#else
+    iDefaultType = EDisplayNone;    
+#endif
+    
+    
+    
     }
 
 // -----------------------------------------------------------------------------
