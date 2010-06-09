@@ -59,7 +59,7 @@
 //d:Minimum value
 //l:setting_slider_pane_t2
 //r:3.1
-#define qtn_sanim_duration_slider_min "1 sec."
+#define qtn_sanim_duration_slider_min "5 sec."
 
 //d:Text in slider control
 //d:Screen saver animation duration setting page

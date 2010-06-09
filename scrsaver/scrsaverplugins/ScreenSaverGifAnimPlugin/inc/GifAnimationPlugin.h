@@ -257,11 +257,15 @@ private: // Data
         // code of last loading error occured
         TInt                iLastError;        
 
-	    // pointer to adapter, we do not own the instance
-    	MPluginAdapter*             iPluginAdapter;
-    	
-    	// if true, no DRM rights are consumed
-    	TBool               isPreviewMode;
+        // pointer to adapter, we do not own the instance
+        MPluginAdapter*             iPluginAdapter;
+        
+        // if true, no DRM rights are consumed
+        TBool               isPreviewMode;
+        
+        // a flag to make sure the first ViewerBitmapChangedL is finished,
+        // then we could draw image on screen
+        TBool               isViewerBitmapChangedL;
     };
 
 

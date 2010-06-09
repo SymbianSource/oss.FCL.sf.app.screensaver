@@ -107,7 +107,7 @@ RESOURCE MIMETYPE_SPECIFIC_PLUGIN_ARRAY r_mimetype_specific_plugin_array
 RESOURCE SLIDER r_anim_timeout_slider 
     {
     layout = EAknSettingsItemSliderLayout;
-    minvalue = 1;
+    minvalue = 5;
     maxvalue = 60;
     step = 1;
     valuetype = EAknSliderValueBareFigure;

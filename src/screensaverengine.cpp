@@ -23,7 +23,6 @@
 #include <Profile.hrh>
 #include <screensaver.rsg>
 #include <AknUtils.h>
-#include <activitymanager.h>
 
 #include "screensaverengine.h"
 #include "screensaverctrlmovingtext.h"
@@ -32,12 +31,14 @@
 #include "screensaverappui.h"
 #include "ScreensaverUtils.h"
 #include "screensaverutility.h"
+#include "screensaveractivitymanager.h"
 
 // Minimum plugin suspension time
 const TInt KMinPluginSuspensionTime = 500000; // 0.5 sec
 
 // Inactivity timeout in seconds when keys locked
 const TInt KTimeoutShort = 5000000;
+const TInt KTimeoutPreviewLocked = 2000000;
 
 const TInt KNoPreview = 0;
 
@@ -126,14 +127,12 @@ void CScreensaverEngine::StartScreenSaver( )
     {
     SCRLOGGER_WRITE("Model: StartScreenSaver()");
 
-    // Ignore start while in preview to avoid double-start lock
+    // Stop if previewing. If keylock was activated, the pause timer will
+    // be started and the selected (not necessarily previewed) screensaver
+    // will start
     if ( iScreenSaverIsPreviewing )
         {
-        // Reset user activity so that screensaver is enabled after
-        // preview even if no user activity happens any more
-        // Note that this puts on backlight but it should be on at this
-        // time anyway (unless a plugin set it off, but what the hey)
-        User::ResetInactivityTime();
+        StopScreenSaver();
         return;
         }
 
@@ -186,7 +185,7 @@ void CScreensaverEngine::StopScreenSaver()
     {
     SCRLOGGER_WRITE("Stopping Screensaver");
 
-    if ( !iScreenSaverIsPreviewing && iSharedDataI->IsKeyguardOn() )
+    if ( iSharedDataI->IsKeyguardOn() || iScreenSaverIsPreviewing )
         {
         StartPauseTimer();
         }
@@ -219,6 +218,7 @@ void CScreensaverEngine::StopScreenSaver()
         iSharedDataI->SetScreensaverPreviewState( EScreenSaverPreviewNone );
 
         KillTimer( iPreviewTimer );
+        ResetInactivityTimeout();
         }
     }
 
@@ -252,6 +252,7 @@ void CScreensaverEngine::StartPreviewModeL( )
         {
         ScreensaverUtility::BringToForeground();
         }
+    iActivityManagerScreensaver->SetInactivityTimeout(0);
     }
 
 // -----------------------------------------------------------------------------
@@ -563,7 +564,7 @@ void CScreensaverEngine::StartActivityMonitoringL( )
 
     // Start monitoring activity for screensaver
     iActivityManagerScreensaver
-        = CUserActivityManager::NewL( CActive::EPriorityStandard );
+        = CScreensaverActivityManager::NewL( CActive::EPriorityUserInput );
         iActivityManagerScreensaver->Start( Timeout(), 
             TCallBack( HandleInactiveEventL,this ),
             TCallBack( HandleActiveEventL, this ) );
@@ -573,7 +574,7 @@ void CScreensaverEngine::StartActivityMonitoringL( )
 // CScreensaverEngine::StopActivityMonitoring
 // -----------------------------------------------------------------------------
 //
-void CScreensaverEngine::StopActivityMonitoring( CUserActivityManager*& aActivityManager )
+void CScreensaverEngine::StopActivityMonitoring( CScreensaverActivityManager*& aActivityManager )
     {
     if ( aActivityManager )
         {
@@ -665,6 +666,14 @@ void CScreensaverEngine::StartPreviewTimer()
 //
 void CScreensaverEngine::StartPauseTimer()
     {
+    if ( iScreenSaverIsPreviewing )
+        {
+        iPauseTimerStartedAfterPreview = ETrue;
+        }
+  
+    TInt timeout = ( iScreenSaverIsPreviewing )? KTimeoutPreviewLocked :
+                                                 KTimeoutShort;
+    
     KillTimer( iPauseTimer );
     
     TRAP_IGNORE( iPauseTimer = CPeriodic::NewL( CActive::EPriorityHigh ) );
@@ -675,7 +684,7 @@ void CScreensaverEngine::StartPauseTimer()
         return;
         }
     
-    iPauseTimer->Start( KTimeoutShort, KTimeoutShort, TCallBack(
+    iPauseTimer->Start( timeout, timeout, TCallBack(
         HandlePauseTimerExpiry, this ) );
     }
 
@@ -717,6 +726,7 @@ TInt CScreensaverEngine::HandlePauseTimerExpiry( TAny* aPtr )
     {
     CScreensaverEngine* _this= STATIC_CAST(CScreensaverEngine*, aPtr);
     _this->KillTimer( _this->iPauseTimer );
+    _this->iPauseTimerStartedAfterPreview = EFalse;
 
     if ( _this->iSharedDataI->IsKeyguardOn() )
         {
@@ -731,11 +741,14 @@ TInt CScreensaverEngine::HandlePauseTimerExpiry( TAny* aPtr )
 // CScreensaverEngine::HandleActiveEventL
 // -----------------------------------------------------------------------------
 //
-TInt CScreensaverEngine::HandleActiveEventL( TAny* /* aPtr */)
+TInt CScreensaverEngine::HandleActiveEventL( TAny* aPtr )
     {
-    SCRLOGGER_WRITE("HandleActiveEventL(), do nothing");
-    // We can be pretty sure the short timeout has passed and its
-    // active event handler stops the saver
+    SCRLOGGER_WRITE("HandleActiveEventL(), stop if previewing");
+    CScreensaverEngine* _this= STATIC_CAST(CScreensaverEngine*, aPtr);
+    if ( _this->iScreenSaverIsPreviewing )
+        {
+        _this->StopScreenSaver();
+        }
     return KErrNone;
     }
 
@@ -748,7 +761,12 @@ TInt CScreensaverEngine::HandleInactiveEventL( TAny* aPtr )
     SCRLOGGER_WRITE("HandleInactiveEventL(), starting screensaver");
 
     CScreensaverEngine* _this= STATIC_CAST(CScreensaverEngine*, aPtr);
-    
+    // Inactivity is detected immediately when preview starts
+    if ( _this->iScreenSaverIsPreviewing )
+        {
+        _this->ResetInactivityTimeout();
+        return KErrNone;
+        }
     // Double-start is OK, it will be checked in StartScreenSaver()
     // This will be trigged by keylock activation after keyguard
     // timeout, or if keylock is disabled
@@ -772,6 +790,33 @@ TInt CScreensaverEngine::HandleSuspendTimerExpiry( TAny* aPtr )
     control->View()->ShowDisplayObject();
 
     return KErrNone;
+    }
+
+// ---------------------------------------------------------------------------
+// CScreensaverEngine::HandleKeyguardStateChanged
+// ---------------------------------------------------------------------------
+//
+void CScreensaverEngine::HandleKeyguardStateChanged( TBool aEnabled )
+    {
+    if ( aEnabled )
+        {
+        // Keys locked - if screensaver is running, this was caused by
+        // automatic keyguard and screensaver should refresh the view
+        // to show the keylock indicator
+        if ( iScreenSaverIsOn && !iScreenSaverIsPreviewing )
+            {
+            View()->UpdateAndRefresh();
+            }
+        if ( !( iPauseTimerStartedAfterPreview && 
+                iPauseTimer && iPauseTimer->IsActive() ) )
+            {
+            StartScreenSaver();
+            }
+        }
+    else
+        {
+        StopScreenSaver();
+        }
     }
 
 // -----------------------------------------------------------------------------

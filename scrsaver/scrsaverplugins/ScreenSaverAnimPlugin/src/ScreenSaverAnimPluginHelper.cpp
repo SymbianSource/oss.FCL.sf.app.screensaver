@@ -104,7 +104,13 @@ TBool CScreenSaverAnimPluginVerifier::VerifySelectionL( const MDesCArray*
     iDRMHelper->SetAutomatedType( 
                    CDRMHelper::EAutomatedTypeScreenSaver );
     res = iDRMHelper->CanSetAutomated( aSelectedFiles->MdcaPoint( 0 ), canbeautomated );
-
+    if ( KErrUnderflow == res )
+        {
+        TInt resourceId = R_SANIM_ERROR_WRONG_FORMAT;
+        // Show information note
+        ShowErrorNoteL( resourceId );    
+        return EFalse;        
+        }
     if ( res )
         {
         iDRMHelper->HandleErrorL( res, aSelectedFiles->MdcaPoint( 0 ) );        

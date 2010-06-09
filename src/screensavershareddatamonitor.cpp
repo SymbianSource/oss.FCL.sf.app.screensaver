@@ -26,6 +26,8 @@
 #include <ScreensaverInternalPSKeys.h>
 #include <UikonInternalPSKeys.h>             // kuikmmcinserted
 #include <hwrmpowerstatesdkpskeys.h>
+#include <ctsydomaincrkeys.h>
+#include <centralrepository.h>
 
 #ifdef RD_UI_TRANSITION_EFFECTS_PHASE2
 #include <akntransitionutils.h>
@@ -72,6 +74,9 @@ CScreensaverSharedDataMonitor::~CScreensaverSharedDataMonitor()
     
     DeleteSubscriber( iChargerStateSubscriber );
     iChargerStateProperty.Close();
+    
+    delete iMessageWaitingWatcher;
+    delete iMessageWaitingRepository;
     }
 
 // -----------------------------------------------------------------------------
@@ -150,6 +155,12 @@ void CScreensaverSharedDataMonitor::ConstructL()
     iChargerStateSubscriber = new (ELeave) CSubscriber( 
         TCallBack( HandleChargerStateChanged, this ), iChargerStateProperty );
     iChargerStateSubscriber->SubscribeL();
+    
+    iMessageWaitingRepository = CRepository::NewL( KCRUidCtsyMessageWaitingIndicator );
+    iMessageWaitingWatcher = CScreensaverRepositoryWatcher::NewL( KCRUidCtsyMessageWaitingIndicator,
+                                                                  TCallBack( HandleMessageWaitingStateChanged, this ),
+                                                                  iMessageWaitingRepository );
+
     }
 
 // -----------------------------------------------------------------------------
@@ -250,22 +261,7 @@ TInt CScreensaverSharedDataMonitor::HandleKeyguardStateChanged(TAny* aPtr)
     CScreensaverSharedDataMonitor* _this =
         STATIC_CAST(CScreensaverSharedDataMonitor*, aPtr);
 
-    if ( _this->iData->IsKeyguardOn() )
-        {
-        // Keys locked - if screensaver is running, this was caused by
-        // automatic keyguard and screensaver should refresh the view
-        // to show the keylock indicator
-        if ( _this->Model().ScreenSaverIsOn() )
-            {
-            _this->View()->UpdateAndRefresh();
-            }
-        _this->Model().StartScreenSaver();
-        }
-    else
-        {
-        _this->Model().StopScreenSaver();
-        }
-
+    _this->Model().HandleKeyguardStateChanged( _this->iData->IsKeyguardOn() );
     return KErrNone;
     }
 
@@ -359,6 +355,20 @@ TInt CScreensaverSharedDataMonitor::HandleChargerStateChanged( TAny* aPtr )
         case EChargingStatusChargingContinued: // Charging continued after brief interruption
         default:
             break;
+        }
+    return KErrNone;
+    }
+
+// ---------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------
+//
+TInt CScreensaverSharedDataMonitor::HandleMessageWaitingStateChanged( TAny* aPtr )
+    {
+    CScreensaverSharedDataMonitor* self = STATIC_CAST(CScreensaverSharedDataMonitor*, aPtr);
+    if ( self->iMessageWaitingWatcher->ChangedKey() == KCtsyMessageWaitingDisplayStatus )
+        {
+        self->View()->UpdateAndRefresh();
         }
     return KErrNone;
     }

@@ -39,6 +39,7 @@ class CScreensaverSharedDataI;
 class CScreensaverSharedDataMonitor;
 class CScreensaverAppUi;
 class CScreensaverView;
+class CScreensaverActivityManager;
 class CPowerSaveDisplayMode;
 
 /**
@@ -139,6 +140,12 @@ public:
      */
     void SetExpiryTimerTimeout( TInt aTimeout );
     
+    /**
+    * Informs the engine about changes in keyguard state
+    * @param aEnabled whether the keyguard is now on or off 
+    */
+    void HandleKeyguardStateChanged( TBool aEnabled );
+    
 private:
     
     /**
@@ -173,7 +180,7 @@ private:
     /**
     * Stops monitoring the user activity
     */
-    void StopActivityMonitoring( CUserActivityManager*& aActivityManager );
+    void StopActivityMonitoring( CScreensaverActivityManager*& aActivityManager );
 
     /**
     * Gets the color model from the resource
@@ -263,7 +270,7 @@ private:
     /**
     * The trigger for screensaver activation
     */
-    CUserActivityManager* iActivityManagerScreensaver;
+    CScreensaverActivityManager* iActivityManagerScreensaver;
 
     
     /**
@@ -319,6 +326,11 @@ private:
 	* interrupted and keys are locked
     */
     CPeriodic* iPauseTimer;
+    
+    /**
+    * Set if the pause timer was started when preview was stopped
+    */
+    TBool iPauseTimerStartedAfterPreview;
     
     };
 

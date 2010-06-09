@@ -118,6 +118,11 @@ private:
     * Callback function. Called when charger state changes
     */
     static TInt HandleChargerStateChanged( TAny* aPtr );
+    
+    /**
+    * Callback function. Called when the message waiting display state changes
+    */
+    static TInt HandleMessageWaitingStateChanged( TAny* aPtr );
 
 private:
     
@@ -170,6 +175,9 @@ private:
     */
     RProperty iChargerStateProperty;
     CSubscriber* iChargerStateSubscriber;
+    
+    CRepository* iMessageWaitingRepository;
+    CScreensaverRepositoryWatcher* iMessageWaitingWatcher;
 
     };
 

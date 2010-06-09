@@ -68,6 +68,7 @@ void CGifAnimationPluginControl::ConstructL( CCoeControl* aParentControl,
     DBG_TRACE_FN_BEGIN;
 
     iPluginAdapter = aPluginAdapter;
+    isViewerBitmapChangedL = EFalse;
     
     if ( aParentControl != NULL )
         {
@@ -248,7 +249,9 @@ void CGifAnimationPluginControl::Draw( const TRect& /*aRect*/ ) const
         
     if ( iDrawingBitmap 
       && iEngine 
-      && iLastError == KErrNone ) // loading was successful
+      && iLastError == KErrNone // loading was successful
+      && isViewerBitmapChangedL ) // need to check whether first ViewerBitmapChangedL
+                                  // has been called; 
         {
         TSize screenSize( rect.Size() );
         TPoint destinationPoint( 
@@ -544,7 +547,7 @@ void CGifAnimationPluginControl::ViewerBitmapChangedL()
                     }
                 }
             }
-            
+        isViewerBitmapChangedL = ETrue;
         MakeVisible( ETrue );
         DrawNow();
         }

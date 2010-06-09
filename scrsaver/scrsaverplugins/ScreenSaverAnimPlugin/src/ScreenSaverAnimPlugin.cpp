@@ -53,7 +53,7 @@ const TInt KSixteenBytes = 128;
 const TInt KUrlMaxLen = 1024;
 
 // Animation Timeout values
-const TInt KMinDurationValue = 1;
+const TInt KMinDurationValue = 5;
 const TInt KMaxDurationValue = 60;
 const TInt KDefaultDurationValue = 5;
 

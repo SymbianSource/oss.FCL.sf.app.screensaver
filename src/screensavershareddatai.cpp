@@ -57,9 +57,9 @@ const TInt KScreensaverNotFromIdle = 0;
 const TInt KScreensaverStartedFromIdle = 1;
 
 // Screen saver text type.
-_LIT( KScreenSaverTypeText, "Text" );
-//Screensaver "None" (Sleep mode)
-_LIT( KScreenSaverTypeNone, "None" );
+// _LIT( KScreenSaverTypeText, "Text" );
+// Screensaver "None" (Sleep mode)
+// _LIT( KScreenSaverTypeNone, "None" );
 
 // Define security policies for Screensavers property keys
 _LIT_SECURITY_POLICY_PASS(KSSPolicyPass);
@@ -520,8 +520,8 @@ TBool CScreensaverSharedDataI::IsHaveNewEmail() const
 TBool CScreensaverSharedDataI::IsHaveNewVoicemail() const
     {
     // Show the indicator, if either line has messages waiting
-    if ( ( VoiceMailCount( KNcnVoiceMailCountInLine1 ) > 0 ) 
-        || ( VoiceMailCount( KNcnVoiceMailCountInLine2 ) > 0 ) )
+    if ( ( VoiceMailCount( KCtsyMessageWaitingVoiceMailCount ) > 0 ) 
+        || ( VoiceMailCount( KCtsyMessageWaitingAuxLineCount ) > 0 ) )
         {
         return ETrue;
         }
@@ -586,6 +586,9 @@ void CScreensaverSharedDataI::HandleSessionEventL(TMsvSessionEvent aEvent, TAny*
     {
     switch (aEvent)
         {
+        case EMsvEntriesChanged:
+            AppUi()->ScreensaverView()->UpdateAndRefresh();
+            break;
         case EMsvCloseSession:
         case EMsvServerTerminated:
             delete iInboxFolder;

@@ -187,7 +187,14 @@ void CScreensaverCtrlMovingText::Refresh()
     // is displaying. Other indicators' state changing also dismisses
     // screensaver. Once redisplaying, the indicators are updated anyway.
     // Key lock indicator depends on status of key guard.
+    TIndicatorPayload payload;
+    payload.iType = EPayloadTypeInteger;
+    
     Array().SetDependencyStatus( ESsKeyLockInd, !Model().SharedDataInterface()->IsKeyguardOn() );
+    payload.iInteger = Model().SharedDataInterface()->UnreadMessagesNumber();
+    Array().SetIndicatorPayload( ESsNewMessagesInd, payload );
+    Array().SetDependencyStatus( ESsNewMessagesInd, ( payload.iInteger <= 0 ) );
+    Array().SetDependencyStatus( ESsVoicemailInd, !Model().SharedDataInterface()->IsHaveNewVoicemail() );
     SCRLOGGER_WRITEF( _L("SCR:CScreensaverCtrlMovingText::Refresh move") );
     // Don't move bar during this refresh
     SetMoving( EFalse );
