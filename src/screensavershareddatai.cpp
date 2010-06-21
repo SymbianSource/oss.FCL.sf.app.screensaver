@@ -30,6 +30,7 @@
 #include <AvkonInternalCRKeys.h>             // KAknNewContactsNoteActive
 #include <avkondomainpskeys.h>               // KAknKeyguardStatus
 #include <ctsydomaincrkeys.h>                // Message (voice) waiting status
+#include <ctsydomainpskeys.h>                // KCTsyCallState
 #include <startupdomainpskeys.h>             // KPSGlobalSystemState
 #include <AknSkinsInternalCRKeys.h>
 #include <MProfileEngine.h> // Profile engine API
@@ -576,6 +577,20 @@ TBool CScreensaverSharedDataI::IsVibraMode()
         }
 
     return EFalse;
+    }
+
+// ---------------------------------------------------------------------------
+// CScreensaverSharedDataI::IsOngoingCall()
+// ---------------------------------------------------------------------------
+//
+TBool CScreensaverSharedDataI::IsOngoingCall()
+    {
+    TInt state = EPSCTsyCallStateUninitialized;
+    // Check the call state from PubSub
+    RProperty::Get( KPSUidCtsyCallInformation, KCTsyCallState, state );
+    
+    return ( state != EPSCTsyCallStateNone && 
+             state != EPSCTsyCallStateUninitialized );
     }
 
 // -----------------------------------------------------------------------------

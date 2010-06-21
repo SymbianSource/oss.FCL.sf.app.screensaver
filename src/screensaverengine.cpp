@@ -745,7 +745,7 @@ TInt CScreensaverEngine::HandleActiveEventL( TAny* aPtr )
     {
     SCRLOGGER_WRITE("HandleActiveEventL(), stop if previewing");
     CScreensaverEngine* _this= STATIC_CAST(CScreensaverEngine*, aPtr);
-    if ( _this->iScreenSaverIsPreviewing )
+    if ( !_this->iSharedDataI->IsKeyguardOn() )
         {
         _this->StopScreenSaver();
         }
@@ -770,7 +770,10 @@ TInt CScreensaverEngine::HandleInactiveEventL( TAny* aPtr )
     // Double-start is OK, it will be checked in StartScreenSaver()
     // This will be trigged by keylock activation after keyguard
     // timeout, or if keylock is disabled
-    _this->StartScreenSaver( );
+    if ( !_this->iSharedDataI->IsOngoingCall() )
+        {
+        _this->StartScreenSaver( );
+        }
 
     return KErrNone;
     }

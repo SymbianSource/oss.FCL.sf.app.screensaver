@@ -122,12 +122,14 @@ void ScreensaverUtility::SendToBackground()
     //condition takes care of special case of incomeing call (should not have effect then)
     if ( CAknTransitionUtils::GetData( KScreensaverCallStateChange ) == NULL )
         {
-        GfxTransEffect::BeginFullScreen( KSsaCustomDeactivateContextNum,
+        if ( static_cast<CScreensaverAppUi*>(CCoeEnv::Static()->AppUi())->IsForeground() )
+            {
+            GfxTransEffect::BeginFullScreen( KSsaCustomDeactivateContextNum,
             TRect( ), AknTransEffect::EParameterType,
             AknTransEffect::GfxTransParam( KUidScreensaverApp,
                 AknTransEffect::TParameter::EActivateExplicitContinue ) );
+            }
         }
-
     CAknTransitionUtils::RemoveData( KScreensaverCallStateChange );
 #endif
 

@@ -223,6 +223,13 @@ public:
     * @return ETrue, if vibra mode is on
     */
     TBool IsVibraMode();
+    
+    /**
+    * Query call state
+    * 
+    * @return ETrue if a call is ongoing 
+    */
+    TBool IsOngoingCall();
 
 public:
     /**

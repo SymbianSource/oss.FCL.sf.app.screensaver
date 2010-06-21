@@ -174,6 +174,8 @@ TInt CScreensaverBase::ActivatePowerSaveDisplay( TBool aFullColors ) const
                 startLine, endLine );
             TUint16* addr = ( TUint16* )iOffScrnBmp->DataAddress();
             err = LcdPartialMode()->Set( startLine, endLine, addr, aFullColors );
+
+            Model().SharedDataInterface()->SetSSForcedLightsOn( 0 );
             }
         else
             {
