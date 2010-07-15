@@ -370,6 +370,7 @@ TInt CSlideshowPlugin::PluginFunction(
             SSPLOGGER_WRITE("No slides selected - launching settings");
             TRAP(ret, ConfigureL(aParam));
             // Check if at least one file is selected    
+            ReadSettings();// update the key value of KThemesScreenSaverSlideSetType
             TRAP(ret, LoadSlidesL());
             if ( ret == KErrNone && iModel->NumberOfSlides() == 0)
                 {

@@ -250,6 +250,11 @@ private:
     */
     static TInt HandleExpiryTimerExpiry( TAny* aPtr );
 
+    /**
+     * Callback to do the screensaver starting.
+     */
+    static TInt StartSaverCb( TAny* aPtr );
+
 private:
     
     /**
@@ -331,7 +336,12 @@ private:
     * Set if the pause timer was started when preview was stopped
     */
     TBool iPauseTimerStartedAfterPreview;
-    
+
+    /**
+     * Asynchronous callback to start screensaver.
+     */
+    CAsyncCallBack iAsyncCb;
+
     };
 
 

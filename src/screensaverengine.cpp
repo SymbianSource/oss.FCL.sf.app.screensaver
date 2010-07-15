@@ -70,6 +70,7 @@ CScreensaverEngine* CScreensaverEngine::NewL()
 //
 CScreensaverEngine::~CScreensaverEngine( )
     {
+    iAsyncCb.Cancel();
     StopActivityMonitoring( iActivityManagerScreensaver );
     DisableSharedDataAndMonitor();
     delete iIndicatorArray;
@@ -143,27 +144,10 @@ void CScreensaverEngine::StartScreenSaver( )
         {
         if ( !iScreenSaverIsOn )
             {
-            // connect in StartScreenSaver, intercept and capture application 
-            // key event. It makes sure this event will not be received 
-            // by other applictions when screensaver is activated.
-            iAknUiServer.ConnectAndSendAppsKeySuppress(ETrue);
-            iScreenSaverIsOn = ETrue;
-
-            // Report whether started from Idle BEFORE bringing to foreground
-            iSharedDataI->SetSSStartedFromIdleStatus();
-            
-            if ( !View()->IsContentlessScreensaver() )
-                {
-                ScreensaverUtility::BringToForeground();
-                }
-
-            SCRLOGGER_WRITE("Model: SS is displaying (BringToForeground)");
-
-            // Compress heap while displaying. No longer possible to
-            // compress all heaps (User::CompressAllHeaps() is a no-op)
-            User::Heap().Compress();
-            
-            DisplayObject();
+            // Activating is done asynchronously to prevent screensaver from
+            // flashing quickly in some cases. This flashing happens e.g. when
+            // a call is missed and a note is showed about it.
+            iAsyncCb.CallBack();
             }
         else
             {
@@ -184,6 +168,7 @@ void CScreensaverEngine::StartScreenSaver( )
 void CScreensaverEngine::StopScreenSaver()
     {
     SCRLOGGER_WRITE("Stopping Screensaver");
+    iAsyncCb.Cancel();
 
     if ( iSharedDataI->IsKeyguardOn() || iScreenSaverIsPreviewing )
         {
@@ -496,9 +481,10 @@ void CScreensaverEngine::SetExpiryTimerTimeout( TInt aTimeout )
 // CScreensaverEngine::CScreensaverEngine
 // -----------------------------------------------------------------------------
 //
-CScreensaverEngine::CScreensaverEngine()
+CScreensaverEngine::CScreensaverEngine() : iAsyncCb( CActive::EPriorityLow )
     {
-
+    TCallBack callbackFunc( StartSaverCb, this );
+    iAsyncCb.Set( callbackFunc );
     }
 
 // -----------------------------------------------------------------------------
@@ -868,6 +854,38 @@ TInt CScreensaverEngine::HandleExpiryTimerExpiry( TAny* aPtr )
         control->View()->ShowDisplayObject();
         }
 
+    return KErrNone;
+    }
+
+
+// ---------------------------------------------------------------------------
+// Callback to do the screensaver starting.
+// ---------------------------------------------------------------------------
+//
+TInt CScreensaverEngine::StartSaverCb( TAny* aPtr )
+    {
+    CScreensaverEngine* self = static_cast<CScreensaverEngine*>( aPtr );
+    // connect in StartScreenSaver, intercept and capture application 
+    // key event. It makes sure this event will not be received 
+    // by other applictions when screensaver is activated.
+    self->iAknUiServer.ConnectAndSendAppsKeySuppress(ETrue);
+    self->iScreenSaverIsOn = ETrue;
+
+    // Report whether started from Idle BEFORE bringing to foreground
+    self->iSharedDataI->SetSSStartedFromIdleStatus();
+
+    if ( !self->View()->IsContentlessScreensaver() )
+        {
+        ScreensaverUtility::BringToForeground();
+        }
+
+    SCRLOGGER_WRITE("Model: SS is displaying (BringToForeground)");
+
+    // Compress heap while displaying. No longer possible to
+    // compress all heaps (User::CompressAllHeaps() is a no-op)
+    User::Heap().Compress();
+
+    self->DisplayObject();
     return KErrNone;
     }
 
