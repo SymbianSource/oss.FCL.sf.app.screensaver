@@ -55,10 +55,10 @@ SYSTEMINCLUDE   /epoc32/include/ecom
 
 LIBRARY         euser.lib
 LIBRARY         servicehandler.lib
-LIBRARY         commonengine.lib        // RConeResourceLoader
+LIBRARY         CommonEngine.lib        // RConeResourceLoader
 LIBRARY         cone.lib                // CCoeEnv
 LIBRARY         efsrv.lib               // TParse
 LIBRARY         avkon.lib
 LIBRARY         aknskinsrv.lib          // RAknsSrvSession
 LIBRARY         imageconversion.lib     // CImageDecoder
-LIBRARY         CentralRepository.lib   // CRepository
+LIBRARY         centralrepository.lib   // CRepository

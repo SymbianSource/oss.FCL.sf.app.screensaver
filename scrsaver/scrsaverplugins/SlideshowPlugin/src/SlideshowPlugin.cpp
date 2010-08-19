@@ -789,15 +789,10 @@ void CSlideshowPlugin::LoadSlideSetL()
 void CSlideshowPlugin::LoadRandomSlidesL()
     {
     SSPLOGGER_ENTERFN("LoadRandomSlidesL()");
-
     // Start by getting rid of possibly loaded slides
     iModel->DeleteAll();
-
-    // connect to MDS
+    // connect to MDS, load data or not
     ConnectToMDSSessionL();
-
-    // Wait for query of MDS to complete before continuing
-    WaitForMDS();
 
     SSPLOGGER_LEAVEFN("LoadRandomSlidesL()");
     }
@@ -940,6 +935,8 @@ void CSlideshowPlugin::ConnectToMDSSessionL()
     if (!iMdESession)
         {
         iMdESession = CMdESession::NewL( *this );
+        // Wait for query of MDS to complete before continuing
+        WaitForMDS();
         }
     }
 

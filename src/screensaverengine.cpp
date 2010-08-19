@@ -228,15 +228,16 @@ void CScreensaverEngine::StartPreviewModeL( )
     StartPreviewTimer();
     
     UpdateIndicatorAttributes();
-
+    
+    if ( !View()->IsContentlessScreensaver() )
+         {
+         ScreensaverUtility::BringToForeground();
+         }
+    
     View()->ShowDisplayObject();
     
     iSharedDataI->SetScreensaverPreviewState( EScreenSaverPreviewStart );
 
-    if ( !View()->IsContentlessScreensaver() )
-        {
-        ScreensaverUtility::BringToForeground();
-        }
     iActivityManagerScreensaver->SetInactivityTimeout(0);
     }
 
@@ -885,7 +886,10 @@ TInt CScreensaverEngine::StartSaverCb( TAny* aPtr )
     // compress all heaps (User::CompressAllHeaps() is a no-op)
     User::Heap().Compress();
 
+    self->iSharedDataI->SetDisplayObjChanged( EFalse );
+    
     self->DisplayObject();
+    
     return KErrNone;
     }
 

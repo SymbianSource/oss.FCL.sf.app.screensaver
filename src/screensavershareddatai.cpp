@@ -683,6 +683,8 @@ void CScreensaverSharedDataI::ConstructL()
     DefineScreensaverProperties( KScreenSaverNoPowerSaveMode, KSSPolicyPass );
 
     DefineScreensaverProperties( KScreenSaverActivate, KSSPolicyWriteUserData );
+    
+    iDisplayChange = EFalse;
     }
 
 // -----------------------------------------------------------------------------
@@ -841,6 +843,8 @@ TInt CScreensaverSharedDataI::HandleDisplayObjChanged(TAny* aPtr)
     {
     CScreensaverSharedDataI* self = STATIC_CAST(CScreensaverSharedDataI*, aPtr);
     
+    self->SetDisplayObjChanged( ETrue );
+    
     self->AppUi()->ScreensaverView()->SetDisplayObject( self->DisplayObjectType() );
     
     return KErrNone;
@@ -936,6 +940,22 @@ void CScreensaverSharedDataI::InvalidateActiveProfile()
         iActiveProfile->Release();
         iActiveProfile = NULL;
         }
+    }
+// -----------------------------------------------------------------------------
+// CScreensaverSharedDataI::SetDisplayObjChanged
+// -----------------------------------------------------------------------------
+//
+void CScreensaverSharedDataI::SetDisplayObjChanged( TBool aChanged )
+    {
+    iDisplayChange = aChanged;
+    }
+// -----------------------------------------------------------------------------
+// CScreensaverSharedDataI::GetDisplayObjChanged
+// -----------------------------------------------------------------------------
+//
+TBool CScreensaverSharedDataI::GetDisplayObjChanged()const
+    {
+    return iDisplayChange;
     }
 
 // -----------------------------------------------------------------------------

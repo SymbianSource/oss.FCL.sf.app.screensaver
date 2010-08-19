@@ -589,6 +589,13 @@ void CScreensaverCtrlPlugin::LoadPluginModuleL()
     if( err != KErrNone )
         {
         // Loaded OK, but failed to initialize - cannot use plugin
+        TBool changed = Model().SharedDataInterface()->GetDisplayObjChanged();
+        if( !changed )
+            {
+            //Just activate the screensaver revert to defaultsaver
+            RevertToDefaultSaver();
+            }
+        Model().SharedDataInterface()->SetDisplayObjChanged( EFalse );
         delete iPlugin;
         iPlugin = NULL;
         }
