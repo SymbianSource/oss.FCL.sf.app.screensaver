@@ -1,7 +1,0 @@
-<layer name="screensaver">
-  <module name="group_screensaver">
-    <component name="group_screensaver">
-      <unit unitID="screensaver" mrp="" bldFile="&layer_real_source_path;\group" name="screensaver" />
-    </component>
-  </module>
-</layer>

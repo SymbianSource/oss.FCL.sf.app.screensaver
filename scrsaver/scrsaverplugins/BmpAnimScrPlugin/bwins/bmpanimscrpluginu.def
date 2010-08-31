@@ -1,3 +1,0 @@
-EXPORTS
-	?CreatePluginModule@@YAPAVMScreensaverPlugin@@XZ @ 1 NONAME ; class MScreensaverPlugin * __cdecl CreatePluginModule(void)
-
