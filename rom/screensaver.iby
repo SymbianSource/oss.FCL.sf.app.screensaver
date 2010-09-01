@@ -1,0 +1,37 @@
+/*
+* Copyright (c) 2002-2005 Nokia Corporation and/or its subsidiary(-ies).
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:     Screen saver application IBY
+*
+*/
+
+
+
+
+
+#ifndef SCREENSAVER_IBY
+#define SCREENSAVER_IBY
+
+// Application
+S60_APP_EXE(screensaver)
+
+// Resources (not localised)
+S60_APP_RESOURCE(screensaver)
+
+// Application information files
+S60_APP_AIF_RSC(screensaver)
+
+// Backup registration
+data=ZPRIVATE\100056CF\backup_registration.xml    private\100056CF\backup_registration.xml
+
+#endif // SCREENSAVER_IBY

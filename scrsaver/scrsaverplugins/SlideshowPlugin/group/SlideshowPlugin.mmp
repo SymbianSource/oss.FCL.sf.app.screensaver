@@ -1,0 +1,97 @@
+/*
+* Copyright (c) 2006 Nokia Corporation and/or its subsidiary(-ies).
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:     Makefile for Screensaver Slideshow plugin 
+*
+*/
+
+
+
+
+
+#include <bldvariant.hrh>
+#include <data_caging_paths.hrh>
+#include <platform_paths.hrh>
+
+TARGET     slideshowplugin.dll
+TARGETTYPE PLUGIN 
+UID        0x10009D8D 0x102823EC
+
+CAPABILITY CAP_ECOM_PLUGIN
+VENDORID   VID_DEFAULT
+
+START RESOURCE ../data/102823EC.rss 
+TARGET      slideshowplugin.rsc
+END
+
+START RESOURCE  ../data/SlideshowPlugin.rss
+HEADER
+TARGETPATH      RESOURCE_FILES_DIR
+LANGUAGE_IDS
+END  // RESOURCE
+
+
+/* exportunfrozen */ 
+
+SOURCEPATH      ../src
+SOURCE          SlideshowPlugin.cpp
+SOURCE          SlideshowModel.cpp
+SOURCE          SlideshowSlide.cpp
+SOURCE          SlideshowSlideLoader.cpp
+SOURCE          SlideshowPluginUtils.cpp
+SOURCE          SlideshowPluginProxy.cpp
+
+USERINCLUDE     ../inc
+
+// This is a SYSTEMINCLUDE macro containing the middleware
+// layer specific include directories
+APP_LAYER_SYSTEMINCLUDE
+
+
+LIBRARY ecom.lib 
+LIBRARY euser.lib
+LIBRARY fbscli.lib
+LIBRARY bitgdi.lib
+LIBRARY cone.lib 
+LIBRARY efsrv.lib 
+LIBRARY bafl.lib
+LIBRARY ws32.lib
+LIBRARY imageconversion.lib
+LIBRARY centralrepository.lib
+LIBRARY cenrepnotifhandler.lib
+LIBRARY DrmHelper.lib
+LIBRARY platformenv.lib
+LIBRARY aknskinsrv.lib
+LIBRARY ContentListingFramework.lib
+LIBRARY avkon.lib 
+LIBRARY eikdlg.lib
+LIBRARY eikcore.lib
+LIBRARY eikcoctl.lib
+LIBRARY mdeclient.lib
+
+// LIBRARY         AknLayout2.lib           // Scalable UI
+// LIBRARY         AknLayout2Scalable.lib   // Scalable UI
+// LIBRARY         CdlEngine.lib            // Scalable UI 
+// LIBRARY         apgrfx.lib
+// LIBRARY         apmime.lib 
+// LIBRARY         MGFetch.lib
+// LIBRARY         CommonEngine.lib 
+// LIBRARY         flogger.lib
+// LIBRARY         caf.lib
+// LIBRARY         cafutils.lib
+#ifdef __SERIES60_HELP
+// LIBRARY         hlplch.lib               // for "Help" options menu
+#endif // __SERIES60_HELP
+
+
+// End of File

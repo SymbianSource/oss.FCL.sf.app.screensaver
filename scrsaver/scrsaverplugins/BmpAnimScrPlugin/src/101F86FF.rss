@@ -1,0 +1,60 @@
+/*
+* Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:   ECOM Resource file for BmpAnimScrPlugin
+*
+*/
+
+
+
+// 101F86FF.RSS
+//
+// Registry file for Bounce-plugin Implementation.
+//
+// Interface(s) : 
+//
+
+#include <RegistryInfo.rh>
+#include <ScreensaverpluginIntDef.hrh>
+
+
+RESOURCE REGISTRY_INFO theInfo
+	{
+	// plugin's UID
+	dll_uid = 0x101F86FF;
+	interfaces = 
+		{
+		INTERFACE_INFO
+			{
+			// ScreenSaver ECOM Plugin interface UID.
+			interface_uid = KCScreensaverPluginInterfaceDefinitionUid;
+			implementations = 
+				{
+				IMPLEMENTATION_INFO
+					{
+					// plugin's UID
+					implementation_uid = 0x101F87F9;
+					version_no = 1;
+                    // This is the displayed name of the plugin.
+                    // It can be localised if needed
+					display_name = "zippo Zaver 3.1";
+					default_data = "";
+                    // This must correspond the value returned by 
+                    // CBmpAnimScrPlugin::Capabilities
+                    opaque_data = KScrPluginCapabilitiesNoneStr;
+					}
+				};
+			}
+		};
+	}
+

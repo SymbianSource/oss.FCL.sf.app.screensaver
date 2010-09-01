@@ -1,0 +1,82 @@
+/*
+* Copyright (c) 2003, 2004 Nokia Corporation and/or its subsidiary(-ies).
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:     Project definition file
+*
+*/
+
+
+
+
+// Animator configuration (logging flags)
+#include "BmpAnimConfig.hrh"
+
+#include <platform_paths.hrh>
+
+TARGET      BmpAnimScrPlugin.dll
+TARGETTYPE 	PLUGIN
+
+CAPABILITY	CAP_ECOM_PLUGIN
+VENDORID	VID_DEFAULT
+//2nd UID is the ECOM plugin UID, 3rd is screensaver plugin dll's uid
+UID        	0x10009D8D 0x101F86FF
+
+#ifdef LOGGING_ENABLED
+MACRO USE_LOGGER
+MACRO USE_RDEBUG
+#endif
+
+SOURCEPATH ../src
+
+SOURCE BmpAnimScrPluginDll.cpp
+SOURCE CBmpAnimScrPlugin.cpp
+SOURCE CBmpAnimModel.cpp
+SOURCE CBmpAnimItem.cpp
+SOURCE CBmpAnimSettings.cpp
+SOURCE CBmpAnimIniData.cpp
+
+LANG SC
+
+USERINCLUDE ../inc
+
+// This is a SYSTEMINCLUDE macro containing the middleware
+// layer specific include directories
+MW_LAYER_SYSTEMINCLUDE
+
+SYSTEMINCLUDE   ../../../../inc
+SYSTEMINCLUDE   /epoc32/include/ecom
+
+LIBRARY ecom.lib
+LIBRARY euser.lib      
+LIBRARY fbscli.lib
+LIBRARY eikcore.lib
+LIBRARY cone.lib
+LIBRARY egul.lib
+LIBRARY efsrv.lib
+LIBRARY avkon.lib
+LIBRARY aknicon.lib
+// LIBRARY bitgdi.lib
+
+#ifdef LOGGING_ENABLED
+LIBRARY flogger.lib
+#endif
+
+// The deffile name has to be changed to be able to build 
+// ecom and non-ecom plugin versions
+DEFFILE bmpanimscrplugin_ecom.def
+
+START RESOURCE 101F86FF.rss
+TARGET BmpAnimScrPlugin.rsc
+END
+
+// End of File

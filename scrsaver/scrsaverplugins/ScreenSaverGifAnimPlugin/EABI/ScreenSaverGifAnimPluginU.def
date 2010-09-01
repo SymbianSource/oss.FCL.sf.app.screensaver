@@ -1,0 +1,9 @@
+EXPORTS
+	_Z24ImplementationGroupProxyRi @ 1 NONAME
+	_ZTI19CGifAnimationPlugin @ 2 NONAME ; #<TI>#
+	_ZTI26CGifAnimationPluginControl @ 3 NONAME ; #<TI>#
+	_ZTI27CGifAnimationPluginEcomMain @ 4 NONAME ; #<TI>#
+	_ZTV19CGifAnimationPlugin @ 5 NONAME ; #<VT>#
+	_ZTV26CGifAnimationPluginControl @ 6 NONAME ; #<VT>#
+	_ZTV27CGifAnimationPluginEcomMain @ 7 NONAME ; #<VT>#
+

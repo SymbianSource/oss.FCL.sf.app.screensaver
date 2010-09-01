@@ -1,0 +1,28 @@
+/*
+* Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:   IBY file for screensaveraiwpluginresouces
+*
+*/
+
+
+
+#ifndef __SCREENSAVERAIWPLUGINRESOURCES_IBY__
+#define __SCREENSAVERAIWPLUGINRESOURCES_IBY__
+
+#ifdef RD_SCREENSAVERAIWPLUGIN
+//localizable resources
+data=DATAZ_\RESOURCE_FILES_DIR\screensaveraiwplugin.rsc  RESOURCE_FILES_DIR\screensaveraiwplugin.rsc
+#endif
+
+#endif // __SCREENSAVERAIWPLUGINRESOURCES_IBY__

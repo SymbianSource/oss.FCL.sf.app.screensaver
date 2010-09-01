@@ -1,0 +1,405 @@
+/*
+* Copyright (c) 2003 Nokia Corporation and/or its subsidiary(-ies).
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:     Screensaver resource file.
+*
+*/
+
+
+
+
+
+NAME SCRE
+
+#include <eikon.rh>
+#include <avkon.rh>
+#include <avkon.mbg>
+#include <avkon.hrh>
+#include <avkon.rsg>
+#include <aknsconstants.hrh>
+   
+#include "screensaver.hrh"
+
+RESOURCE RSS_SIGNATURE { }
+
+RESOURCE TBUF 
+    { 
+    buf= ""; 
+    }
+
+RESOURCE EIK_APP_INFO
+    {
+    status_pane = r_status_pane;
+    }
+
+RESOURCE STATUS_PANE_APP_MODEL r_status_pane
+    {
+    layout= R_AVKON_STATUS_PANE_LAYOUT_EMPTY;   
+    }
+
+
+STRUCT SCREENSAVER_COLOR_MODEL
+    {
+    LONG color_depth;       // Highest color model supported in partial mode.                           
+    WORD colors[8];         // This array is for defining colors for 3-bit mode.
+    LONG dark_gradient[6];  // Darker shades for gradient effect (in high color mode).
+    LONG light_gradient[6]; // Lighter shades for gradient effect (in high color mode).
+    }
+
+
+RESOURCE SCREENSAVER_COLOR_MODEL r_screensaver_color_model
+    {
+    color_depth = ESsColorModel3BitMode; 
+    colors = 
+        {
+        210,
+        35,
+        23,
+        185,
+        105,
+        95,
+        159,
+        221         
+        };
+    dark_gradient =
+        {
+        0x993300,
+        0x990033,
+        0x680069,
+        0x003bce,
+        0x225904,
+        0x090273
+        };
+    light_gradient =
+        {
+        0xfbb100,
+        0xfd9597,
+        0xfe00cb,
+        0x00c8fe,
+        0x33fa95,
+        0xa843fd
+        };
+    }
+
+
+//
+// This struct contains various rendering parameters for screensaver
+// indicator bar. Do not change the order of fields in this struct.
+//
+STRUCT SCREENSAVER_PARAMETERS_ARRAY 
+    {
+    WORD KIndicatorMargin;    // Minimum indicator distance to left and right border.
+    WORD KIndicatorGap;       // How many pixels between indicators.
+    WORD KIndicatorTopMargin; // Distance from top border of indicator bar to top border of indicator icon.
+    WORD KIndicatorTextLevel;
+    LONG KBackGroundColor;    // Background color in TRgb format.
+    WORD KHeight;             // Height of the indicator bar.
+    }
+
+
+RESOURCE SCREENSAVER_PARAMETERS_ARRAY r_screensaver_parameters
+    {
+    KIndicatorMargin    = 5;
+    KIndicatorGap       = 4;
+    KIndicatorTopMargin = 2;
+    KIndicatorTextLevel = 17;
+    KBackGroundColor    = 0x00c8c8c8;
+    KHeight = 14;
+    }
+
+
+//
+// Numeric indicator. Displays number over bitmap background.
+// there can be separate background bitmap for each number of digits
+// displayed. 'Icons' array has following format:
+//  icons =
+//      {
+//      // Backround bitmap for one digit case 
+//      EMbmAvkonQgn_background_for_one_digit_case,
+//      // Mask for one digit case. 
+//      EMbmAvkonQgn_mask_for_one_digit_case,
+//      // X position of numeric value inside of bitmap (value is an example).
+//      23,                                         
+//      // Y position of numeric value inside of bitmap.
+//      17,
+//      // Two digit case starts here...
+//      EMbmAvkonQgn_background_for_two_digit_case, 
+//      EMbmAvkonQgn_mask_for_two_digit_case,         
+//      22,
+//      15
+//      // ... and so on for each number of digits.
+//      };
+// This indicator type is not currently used in standard 2.x screensaver.
+//
+STRUCT SCRN_NUMERIC_INDICTOR
+    {
+    LONG type = ESsNumericIndicator;
+    WORD id;
+    WORD priority = ESsDrawTypeNotDrawn;
+    WORD align;
+    LONG icons[];           
+    }
+
+
+//
+// Icon indicator. Displays bitmap and mask (if specified).
+//
+STRUCT SCRN_ICON_INDICATOR
+    {
+    LONG type = ESsIconIndicator;
+    WORD id;
+    WORD priority = ESsDrawTypeNotDrawn;
+    WORD align;
+    LONG icon[4];  // Bmp id, mask id, skinned bmp id, skinned bmp mask id
+    }
+
+
+//
+// Text indicator. Displays text without background bitmap.
+//
+STRUCT SCRN_TEXT_INDICATOR
+    {
+    LONG type = ESsTextIndicator;
+    WORD id;
+    WORD priority = ESsDrawTypeNotDrawn;
+    WORD align;
+    LONG font_id = ELatinPlain12;
+    }
+
+
+//
+// Number & Icon indicator. Displays numeric information with
+// icon. Number is displayed on left or right side of the
+// icon (depending on icon_align), not over the icon like with 
+// numeric indicator.
+//
+STRUCT SCRN_NUMBER_AND_ICON_INDICATOR
+    {
+    LONG type = ESsNumberAndIconIndicator;
+    WORD id;
+    WORD priority = ESsDrawTypeNotDrawn;
+    WORD align;
+    LONG icon_align;
+    LONG font_id = ELatinPlain12;
+    LONG icon[4];    // Bmp id, mask id, skinned bmp id, skinned bmp mask id
+    }
+
+
+//
+// The screensaver indicator array. Defines indicators for
+// indicator bar in default screensaver view.
+// The order of indicators in this array specifies the order
+// of indicators on screen.
+//
+RESOURCE ARRAY r_screensaver_indicator_array
+    {
+    items = 
+        {
+        SCRN_ICON_INDICATOR                // Voicemail indicator
+            {
+            id = ESsVoicemailInd;
+            align = ESsAlignRight;
+            priority = ESsDrawTypePrimary;
+            icon = 
+                {
+                EMbmAvkonQgn_stat_vm0_uni,
+                EMbmAvkonQgn_stat_vm0_uni,
+                EAknsMinorGenericQgnStatVm0Uni,
+                EAknsMinorGenericQgnStatVm0Uni
+                };
+            },
+        SCRN_ICON_INDICATOR                // E-mail indicator
+            {
+            id = ESsMailInd;
+            align = ESsAlignRight;
+            priority = ESsDrawTypePrimary;
+            icon = 
+                {
+                EMbmAvkonQgn_stat_message_mail_uni,
+                EMbmAvkonQgn_stat_message_mail_uni,
+                EAknsMinorGenericQgnStatMessageMailUni,
+                EAknsMinorGenericQgnStatMessageMailUni
+                };
+            },
+        SCRN_ICON_INDICATOR                // Instant messaging indicator.
+            {
+            id = ESsImInd;
+            align = ESsAlignRight;
+            priority = ESsDrawTypePrimary;
+            icon = 
+                {
+                EMbmAvkonQgn_stat_im_uni,
+                EMbmAvkonQgn_stat_im_uni,
+                EAknsMinorGenericQgnStatImUni,
+                EAknsMinorGenericQgnStatImUni
+                };
+            },
+        SCRN_NUMBER_AND_ICON_INDICATOR     // Unread messages indicator.
+            {
+            id = ESsNewMessagesInd;         
+            align = ESsAlignRight;
+            priority = ESsDrawTypePrimary;
+            icon_align = ESsAlignRight;
+            icon =
+                {
+                EMbmAvkonQgn_stat_message_ps,
+                EMbmAvkonQgn_stat_message_ps,
+                EAknsMinorGenericQgnStatMessagePs,
+                EAknsMinorGenericQgnStatMessagePs
+                };
+            },
+        SCRN_NUMBER_AND_ICON_INDICATOR      // Missed calls indicator.
+            {
+            id = ESsMissedCallsInd;         
+            align = ESsAlignRight;
+            priority = ESsDrawTypePrimary;
+            icon_align = ESsAlignRight;
+            icon =
+                {
+                EMbmAvkonQgn_stat_missed_call_ps,      
+                EMbmAvkonQgn_stat_missed_call_ps,
+                EAknsMinorGenericQgnStatMissedCallPs,
+                EAknsMinorGenericQgnStatMissedCallPs
+                };
+            },
+        SCRN_TEXT_INDICATOR                // Profile name indicator.
+            {
+            id = ESsProfileInd;
+            align = ESsAlignLeft;
+            priority = ESsDrawTypeSecondary;
+            },
+        SCRN_ICON_INDICATOR                // Keyguard indicator.
+            {
+            id = ESsKeyLockInd;
+            align = ESsAlignLeft;
+            priority = ESsDrawTypeSecondary;
+            icon = 
+                {
+                EMbmAvkonQgn_stat_keyguard,
+                EMbmAvkonQgn_stat_keyguard,
+                EAknsMinorGenericQgnStatKeyguard,
+                EAknsMinorGenericQgnStatKeyguard
+                };
+            }
+        };
+    }
+
+
+//
+// The screensaver indicator array. Defines indicators for
+// indicator bar in default screensaver view.
+// The order of indicators in this array specifies the order
+// of indicators on screen.
+RESOURCE ARRAY r_screensaver_indicator_array_new_layout
+    {
+    items = 
+        {
+        SCRN_TEXT_INDICATOR                // Am/Pm indicator.
+            {
+            id = ESsAmPmInd;
+            align = ESsAlignRight;
+            priority = ESsDrawTypePrimary;
+            },
+        SCRN_TEXT_INDICATOR                // Profile name indicator.
+            {
+            id = ESsProfileInd;
+            align = ESsAlignLeft;
+            priority = ESsDrawTypeSecondary;
+            },
+        SCRN_ICON_INDICATOR                // Voicemail indicator
+            {
+            id = ESsVoicemailInd;
+            align = ESsAlignLeft;
+            priority = ESsDrawTypeSecondary;
+            icon = 
+                {
+                EMbmAvkonQgn_stat_vm0_uni,
+                EMbmAvkonQgn_stat_vm0_uni,
+                EAknsMinorGenericQgnStatVm0Uni,
+                EAknsMinorGenericQgnStatVm0Uni
+                };
+            },
+        SCRN_ICON_INDICATOR                // E-mail indicator
+            {
+            id = ESsMailInd;
+            align = ESsAlignLeft;
+            priority = ESsDrawTypeSecondary;
+            icon = 
+                {
+                EMbmAvkonQgn_stat_message_mail_uni,
+                EMbmAvkonQgn_stat_message_mail_uni,
+                EAknsMinorGenericQgnStatMessageMailUni,
+                EAknsMinorGenericQgnStatMessageMailUni
+                };
+            },
+        SCRN_ICON_INDICATOR                // Instant messaging indicator.
+            {
+            id = ESsImInd;
+            align = ESsAlignLeft;
+            priority = ESsDrawTypeSecondary;
+            icon = 
+                {
+                EMbmAvkonQgn_stat_im_uni,
+                EMbmAvkonQgn_stat_im_uni,
+                EAknsMinorGenericQgnStatImUni,
+                EAknsMinorGenericQgnStatImUni
+                };
+            },
+        SCRN_NUMBER_AND_ICON_INDICATOR     // Unread messages indicator.
+            {
+            id = ESsNewMessagesInd;         
+            align = ESsAlignLeft;
+            priority = ESsDrawTypePrimary;
+            icon_align = ESsAlignRight;
+            icon =
+                {
+                EMbmAvkonQgn_stat_message_uni, //ps,
+                EMbmAvkonQgn_stat_message_uni, //ps,
+                EAknsMinorGenericQgnStatMessageUni,
+                EAknsMinorGenericQgnStatMessageUni
+                };
+            },
+        SCRN_NUMBER_AND_ICON_INDICATOR      // Missed calls indicator.
+            {
+            id = ESsMissedCallsInd;         
+            align = ESsAlignLeft;
+            priority = ESsDrawTypePrimary;
+            icon_align = ESsAlignRight;
+            icon =
+                {
+                EMbmAvkonQgn_stat_missed_calls_uni, //_ps,      
+                EMbmAvkonQgn_stat_missed_calls_uni, //_ps,
+                EAknsMinorGenericQgnStatMissedCallsUni,
+                EAknsMinorGenericQgnStatMissedCallsUni
+                };
+            },
+        SCRN_ICON_INDICATOR                // Keyguard indicator.
+            {
+            id = ESsKeyLockInd;
+            align = ESsAlignLeft;
+            priority = ESsDrawTypePrimary;
+            icon = 
+                {
+                EMbmAvkonQgn_stat_keyguard,
+                EMbmAvkonQgn_stat_keyguard,
+                EAknsMinorGenericQgnStatKeyguard,
+                EAknsMinorGenericQgnStatKeyguard
+                };
+            }
+        };
+    }
+
+// 01:20, 1:20, 13:05, 1:05 // separators are locale dependent
+RESOURCE TBUF r_screensaver_time_usual_without_ampm { buf = "%J%:1%T"; }
+
+// End of file.
