@@ -29,6 +29,10 @@
 const TInt KDisplayOff = 0;
 const TInt KDisplayOn = 1;
 
+
+const TInt KTimerDelay = 60*1000*1000;  // 60 seconds
+const TInt KTimerInterval = KTimerDelay; 
+
 // -----------------------------------------------------------------------------
 // CScreensaverCtrlNone::NewL
 // -----------------------------------------------------------------------------
@@ -48,6 +52,12 @@ CScreensaverCtrlNone* CScreensaverCtrlNone::NewL()
 //
 CScreensaverCtrlNone::~CScreensaverCtrlNone()
     {
+	if( iTimer )
+		{
+        iTimer->Cancel();
+        delete iTimer;
+		}
+    
     }
 
 // -----------------------------------------------------------------------------
@@ -74,7 +84,6 @@ void CScreensaverCtrlNone::ClearScreen()
     {
     SCRLOGGER_WRITEF( _L("SCR:CScreensaverCtrlNone::ClearScreen start") );
     SwitchDisplayState( KDisplayOn );
-    
     SwitchLights( ESSForceLightsOn );
     }
 
@@ -151,7 +160,10 @@ CScreensaverCtrlNone::CScreensaverCtrlNone()
 //
 void CScreensaverCtrlNone::ConstructL()
     {
-    CreateWindowL();
+    iTimer = CPeriodic::NewL( CActive::EPriorityStandard );
+    iTimer->Start( KTimerDelay, KTimerInterval,
+                            TCallBack( CloseDisplayResource,this ) );
+	CreateWindowL();
     SetRect( iCoeEnv->ScreenDevice()->SizeInPixels() );
     ActivateL();
     }
@@ -191,5 +203,25 @@ void CScreensaverCtrlNone::SwitchDisplayState( TInt aState )
         }
     }
 
+// -----------------------------------------------------------------------------
+// CScreensaverCtrlNone::CloseDisplayResource
+// -----------------------------------------------------------------------------
+//
+TInt CScreensaverCtrlNone::CloseDisplayResource( TAny* aPtr )
+    {
+    SCRLOGGER_WRITEF( _L("CScreensaverCtrlNone::CloseResource()") );
+    CScreensaverCtrlNone* ctrl = static_cast<CScreensaverCtrlNone*>( aPtr );
+	
+    if( ctrl && ctrl->Model().ScreenSaverIsOn() && !ctrl->Model().ScreenSaverIsPreviewing() )
+        {
+        ctrl->SwitchDisplayState( KDisplayOff );
+        ctrl->SwitchLights( ESSForceLightsOff );
+        return KErrNone;
+        }
+    else
+        {
+        return KErrGeneral;
+        }
+    }
 
 //End of file

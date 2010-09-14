@@ -354,6 +354,9 @@ private:
 
     // MDS session
     CMdESession* iMdESession;
+    
+    // MDS query owned 
+    CMdEObjectQuery* iQuery;
     };  
 
 

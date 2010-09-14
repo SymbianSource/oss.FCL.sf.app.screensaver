@@ -134,8 +134,19 @@ CSlideshowPlugin::~CSlideshowPlugin()
     delete iDrmHelper;
     delete iModel;
 
-    // First model, then engine, otherwise bad things happen
-    delete iMdESession;
+    // Close and delete mds query
+    if ( iQuery )
+        {
+        iQuery->Cancel();
+        delete iQuery;
+        iQuery = NULL;
+        }
+
+	if ( iMdESession )
+        {
+        delete iMdESession;
+        iMdESession = NULL;
+        }
     
     // Logging done
     SSPLOGGER_DELETE;
@@ -1001,9 +1012,9 @@ void CSlideshowPlugin::OpenQueryL()
     CMdEObjectDef& imageObjDef = defaultNamespaceDef.GetObjectDefL( MdeConstants::Image::KImageObject );
 
     // query objects with object definition "Image"
-    CMdEObjectQuery* query = iMdESession->NewObjectQueryL( defaultNamespaceDef, imageObjDef, this );
+    iQuery = iMdESession->NewObjectQueryL( defaultNamespaceDef, imageObjDef, this );
 
-    query->FindL( KDefaultRandomLoadingNumber );
+    iQuery->FindL( KDefaultRandomLoadingNumber );
     }
 
 // -----------------------------------------------------------------------------

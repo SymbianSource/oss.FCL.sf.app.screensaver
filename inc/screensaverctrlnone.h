@@ -108,6 +108,21 @@ private:
     */
     void SwitchDisplayState( TInt aState );
     
+    /**
+     * Callback for closing the light and display resources
+     * 
+     * @param aPtr pointer to CScreensaverCtrlNone
+     */
+    static TInt CloseDisplayResource( TAny* aPtr );
+    
+    /**
+     * Timer for check and close display&light resource after refresh.
+     * There is possibility that light is turned on responding to some
+     * notifications(e.g new SMS). This timer makes sure that display
+     * resources are closed again after such events. 
+     */
+    CPeriodic* iTimer;
+    
     };
 
 #endif // C_SCREENSAVERCTRLNONE_H
