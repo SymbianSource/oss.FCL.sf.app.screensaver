@@ -132,7 +132,8 @@ void ScreensaverUtility::SendToBackground()
         }
     CAknTransitionUtils::RemoveData( KScreensaverCallStateChange );
 #endif
-
+    CEikonEnv::Static()->RootWin().SetOrdinalPosition(
+                    0, ECoeWinPriorityNeverAtFront );
     CEikonEnv::Static()->BringForwards( EFalse );
     }
 
