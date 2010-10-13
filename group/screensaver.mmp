@@ -97,22 +97,22 @@ LIBRARY     apgrfx.lib
 LIBRARY     ws32.lib
 LIBRARY     CommonEngine.lib
 LIBRARY     aknlayout.lib
-LIBRARY     AknLayout2Scalable.lib
+LIBRARY     aknlayout2scalable.lib
 LIBRARY     fbscli.lib
 LIBRARY     egul.lib
 LIBRARY     msgs.lib
 LIBRARY     bafl.lib
 LIBRARY     power_save_display_mode.lib
 LIBRARY     gdi.lib
-LIBRARY     profileeng.lib
+LIBRARY     ProfileEng.lib
 LIBRARY     hal.lib
-LIBRARY     aknskins.lib
-LIBRARY     featmgr.lib // Feature Manager API
-LIBRARY     aknicon.lib
-LIBRARY     aknpictograph.lib
+LIBRARY     AknSkins.lib
+LIBRARY     FeatMgr.lib // Feature Manager API
+LIBRARY     AknIcon.lib
+LIBRARY     AknPictograph.lib
 LIBRARY     ecom.lib
-LIBRARY     centralrepository.lib
-LIBRARY     cenrepnotifhandler.lib
+LIBRARY     CentralRepository.lib
+LIBRARY     CenRepNotifHandler.lib
 LIBRARY     efsrv.lib
 LIBRARY     flogger.lib
 #ifdef RD_UI_TRANSITION_EFFECTS_PHASE2

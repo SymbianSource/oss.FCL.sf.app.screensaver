@@ -886,10 +886,7 @@ TInt CScreensaverEngine::StartSaverCb( TAny* aPtr )
     // compress all heaps (User::CompressAllHeaps() is a no-op)
     User::Heap().Compress();
 
-    self->iSharedDataI->SetDisplayObjChanged( EFalse );
-    
     self->DisplayObject();
-    
     return KErrNone;
     }
 

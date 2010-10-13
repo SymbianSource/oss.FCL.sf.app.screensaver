@@ -63,6 +63,8 @@ CScreensaverCtrlPlugin::~CScreensaverCtrlPlugin()
 void CScreensaverCtrlPlugin::StartTimer()
     {
     // Notify plugin that screensaver is starting
+    Model().SharedDataInterface()->SetSSForcedLightsOn( ESSForceLightsOn );
+    
     SendPluginEvent( EScreensaverEventStarting );
     
     
@@ -282,7 +284,6 @@ void CScreensaverCtrlPlugin::ExitPartialMode()
     SCRLOGGER_WRITE("Host: ExitPartialMode()");
 
     LcdPartialMode()->Exit();
-    Model().SharedDataInterface()->SetSSForcedLightsOn( ESSForceLightsOn );
     // Make sure the partial area is empty
     // Make this less idiotic
     TRect psRect( 0, 0, 0, 0);
@@ -588,13 +589,6 @@ void CScreensaverCtrlPlugin::LoadPluginModuleL()
     if( err != KErrNone )
         {
         // Loaded OK, but failed to initialize - cannot use plugin
-        TBool changed = Model().SharedDataInterface()->GetDisplayObjChanged();
-        if( !changed )
-            {
-            //Just activate the screensaver revert to defaultsaver
-            RevertToDefaultSaver();
-            }
-        Model().SharedDataInterface()->SetDisplayObjChanged( EFalse );
         delete iPlugin;
         iPlugin = NULL;
         }

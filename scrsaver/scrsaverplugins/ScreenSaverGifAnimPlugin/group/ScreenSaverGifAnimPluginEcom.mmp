@@ -59,6 +59,6 @@ LIBRARY           euser.lib cone.lib
 LIBRARY           eikcore.lib fbscli.lib gdi.lib
 LIBRARY           bitgdi.lib // CFbsBitmapDevice
 LIBRARY           ecom.lib
-LIBRARY           IHL.lib   // MIHLFileImage
+LIBRARY           IHL.LIB   // MIHLFileImage
 LIBRARY           efsrv.lib // RFs
 LIBRARY           bafl.lib  // baflutils

@@ -134,19 +134,8 @@ CSlideshowPlugin::~CSlideshowPlugin()
     delete iDrmHelper;
     delete iModel;
 
-    // Close and delete mds query
-    if ( iQuery )
-        {
-        iQuery->Cancel();
-        delete iQuery;
-        iQuery = NULL;
-        }
-
-	if ( iMdESession )
-        {
-        delete iMdESession;
-        iMdESession = NULL;
-        }
+    // First model, then engine, otherwise bad things happen
+    delete iMdESession;
     
     // Logging done
     SSPLOGGER_DELETE;
@@ -800,10 +789,15 @@ void CSlideshowPlugin::LoadSlideSetL()
 void CSlideshowPlugin::LoadRandomSlidesL()
     {
     SSPLOGGER_ENTERFN("LoadRandomSlidesL()");
+
     // Start by getting rid of possibly loaded slides
     iModel->DeleteAll();
-    // connect to MDS, load data or not
+
+    // connect to MDS
     ConnectToMDSSessionL();
+
+    // Wait for query of MDS to complete before continuing
+    WaitForMDS();
 
     SSPLOGGER_LEAVEFN("LoadRandomSlidesL()");
     }
@@ -946,8 +940,6 @@ void CSlideshowPlugin::ConnectToMDSSessionL()
     if (!iMdESession)
         {
         iMdESession = CMdESession::NewL( *this );
-        // Wait for query of MDS to complete before continuing
-        WaitForMDS();
         }
     }
 
@@ -1012,9 +1004,9 @@ void CSlideshowPlugin::OpenQueryL()
     CMdEObjectDef& imageObjDef = defaultNamespaceDef.GetObjectDefL( MdeConstants::Image::KImageObject );
 
     // query objects with object definition "Image"
-    iQuery = iMdESession->NewObjectQueryL( defaultNamespaceDef, imageObjDef, this );
+    CMdEObjectQuery* query = iMdESession->NewObjectQueryL( defaultNamespaceDef, imageObjDef, this );
 
-    iQuery->FindL( KDefaultRandomLoadingNumber );
+    query->FindL( KDefaultRandomLoadingNumber );
     }
 
 // -----------------------------------------------------------------------------

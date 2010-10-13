@@ -157,6 +157,7 @@ TInt CScreenSaverAnimPlugin::InitializeL( MScreensaverPluginHost *aHost )
     
     if ( err != KErrNone )
         {
+        iScreenSaverHost->RevertToDefaultSaver();
         return err;
         }
     

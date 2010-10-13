@@ -249,16 +249,6 @@ public:
     * Returns the pointer of the screensaver repository 
     */
     CRepository* ScreensaverRepository() const;
-    
-public:
-    /*
-    * Get the flag of display changed 
-    */
-    TBool GetDisplayObjChanged() const;
-    /*
-    * Set the flag of display changed 
-    */
-    void SetDisplayObjChanged( TBool aChanged );
 
 private:
     
@@ -398,11 +388,6 @@ private:
     * System startup completion flag
     */
     TBool iStartupComplete;
-    
-    /**
-   * Record display changed flag
-   */
-    TBool iDisplayChange;
     };
 
 #endif  // C_SCREENSAVERSHAREDDATAI_H

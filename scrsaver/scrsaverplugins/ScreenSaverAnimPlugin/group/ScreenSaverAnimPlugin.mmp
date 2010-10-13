@@ -69,18 +69,18 @@ LIBRARY         eikcore.lib
 LIBRARY         cone.lib 
 LIBRARY         efsrv.lib 
 LIBRARY         bafl.lib
-LIBRARY         centralrepository.lib
-LIBRARY         cenrepnotifhandler.lib
-LIBRARY         DrmHelper.lib
-LIBRARY         aknicon.lib              // AknIconUtils
-LIBRARY         aknlayout2.lib           // Scalable UI
+LIBRARY         CentralRepository.lib
+LIBRARY         CenRepNotifHandler.lib
+LIBRARY         drmhelper.lib
+LIBRARY         aknicon.lib              // AknIconUtils 
+LIBRARY         AknLayout2.lib           // Scalable UI
 LIBRARY         AknLayout2Scalable.lib   // Scalable UI
-LIBRARY         aknskins.lib
+LIBRARY         AknSkins.lib 
 LIBRARY         CdlEngine.lib            // Scalable UI 
 LIBRARY         avkon.lib 
 LIBRARY         apgrfx.lib
 LIBRARY         apmime.lib 
-LIBRARY         mgfetch.lib
+LIBRARY         MGFetch.lib
 LIBRARY         eikcoctl.lib
 LIBRARY         CommonEngine.lib 
 LIBRARY         eikdlg.lib

@@ -67,11 +67,11 @@ LIBRARY efsrv.lib
 LIBRARY bafl.lib
 LIBRARY ws32.lib
 LIBRARY imageconversion.lib
-LIBRARY centralrepository.lib
-LIBRARY cenrepnotifhandler.lib
-LIBRARY DrmHelper.lib
+LIBRARY CentralRepository.lib
+LIBRARY CenRepNotifHandler.lib
+LIBRARY drmhelper.lib
 LIBRARY platformenv.lib
-LIBRARY aknskinsrv.lib
+LIBRARY AknSkinSrv.lib 
 LIBRARY ContentListingFramework.lib
 LIBRARY avkon.lib 
 LIBRARY eikdlg.lib

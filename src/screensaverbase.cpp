@@ -84,7 +84,6 @@ void CScreensaverBase::StopDrawObject()
         {
         SCRLOGGER_WRITE("Model: StopScreenSaver(), exit power save");
         LcdPartialMode()->Exit();
-        Model().SharedDataInterface()->SetSSForcedLightsOn( ESSForceLightsOn );
         }
     
     CancelTimer();
@@ -176,7 +175,7 @@ TInt CScreensaverBase::ActivatePowerSaveDisplay( TBool aFullColors ) const
             TUint16* addr = ( TUint16* )iOffScrnBmp->DataAddress();
             err = LcdPartialMode()->Set( startLine, endLine, addr, aFullColors );
 
-            Model().SharedDataInterface()->SetSSForcedLightsOn( ESSForceLightsOff );
+            Model().SharedDataInterface()->SetSSForcedLightsOn( 0 );
             }
         else
             {
