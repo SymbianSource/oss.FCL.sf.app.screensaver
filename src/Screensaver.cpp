@@ -98,6 +98,7 @@ LOCAL_C CApaApplication* NewApplication()
     
 GLDEF_C TInt E32Main()
     {
+    RProcess().SetPriority( EPriorityHigh );
     return EikStart::RunApplication(NewApplication);
     }
 

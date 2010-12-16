@@ -18,10 +18,15 @@
 
 
 #include <eikenv.h>
+#include <apgwgnam.h>
+#include <aknkeylock.h>
 
 #include "screensavershareddatai.h"
 #include "screensaverappui.h"
 #include "screensaverengine.h"
+
+const TUid KAutolockUid = { 0x100059B5 };
+const TInt KGripCloseScanCode = EStdKeyDevice5;
 
 //
 // CScreensaverAppUi
@@ -133,15 +138,48 @@ TKeyResponse CScreensaverAppUi::HandleKeyEventL( const TKeyEvent& aKeyEvent,
     // the preview might be received here, and preview stopped before
     // it even properly started
     TBool stop = EFalse;
-
     if ( !iView )
         {
         return EKeyWasConsumed;
         }
-
-    if ( aType == EEventKey && aKeyEvent.iCode == EKeyNo )
+    
+    if ( aType == EEventKeyUp )
         {
+        // ignore cover closed key events
+        if (aKeyEvent.iScanCode != KGripCloseScanCode
+        && iModel->SharedDataInterface()->IsCoverOpen() )
+            {
+            RAknKeylock2 keylock;
+            TInt error( keylock.Connect() );
+            if ( error )
+                {
+                return EKeyWasConsumed;
+                }
+            
+            // if device lock is ON, unlock it
+            if( iModel->SharedDataInterface()->IsAutoLockOpen() )
+                {
+                TApaTaskList tasklist( iCoeEnv->WsSession() );
+                TApaTask autolockTask( tasklist.FindApp( KAutolockUid ) );
+                if ( autolockTask.Exists() )
+                    {
+                    keylock.DisableWithoutNote();//Unlocks the keys of the device
+                    // Send key event to autolock app to start device lock query.
+                    TKeyEvent keyEvent;
+                    keyEvent.iCode = EKeyBell;
+                    autolockTask.SendKey( keyEvent );
+                    }
+                }
+            
+            if( iModel->SharedDataInterface()->IsKeyguardOn() )
+                {
+                keylock.DisableWithoutNote();//Unlocks the keys of the device
+                }
+                
+        keylock.Close();
         stop = ETrue;
+            }
+
         }
     else
         {

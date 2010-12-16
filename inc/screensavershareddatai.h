@@ -230,6 +230,18 @@ public:
     * @return ETrue if a call is ongoing 
     */
     TBool IsOngoingCall();
+    
+    /*
+     * Query device cover status
+     * @return ETrue, if cover is open
+     */
+    TBool IsCoverOpen() const; 
+    
+    /*
+     * Query auto lock staus
+     * @return ETrue, if auto lock is open
+     */
+    TBool IsAutoLockOpen() const; 
 
 public:
     /**

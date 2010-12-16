@@ -165,12 +165,12 @@ void CScreensaverEngine::StartScreenSaver( )
 // CScreensaverEngine::StopScreenSaver
 // -----------------------------------------------------------------------------
 //
-void CScreensaverEngine::StopScreenSaver()
+void CScreensaverEngine::StopScreenSaver( TBool aStoppedByKeylockOff )
     {
     SCRLOGGER_WRITE("Stopping Screensaver");
     iAsyncCb.Cancel();
 
-    if ( iSharedDataI->IsKeyguardOn() || iScreenSaverIsPreviewing )
+    if ( !aStoppedByKeylockOff )
         {
         StartPauseTimer();
         }
@@ -653,9 +653,9 @@ void CScreensaverEngine::StartPreviewTimer()
 //
 void CScreensaverEngine::StartPauseTimer()
     {
-    if ( iScreenSaverIsPreviewing )
+    if ( !iSharedDataI->IsKeyguardOn() )
         {
-        iPauseTimerStartedAfterPreview = ETrue;
+        iPauseTimerStartedWithKeylockOff = ETrue;
         }
   
     TInt timeout = ( iScreenSaverIsPreviewing )? KTimeoutPreviewLocked :
@@ -713,7 +713,7 @@ TInt CScreensaverEngine::HandlePauseTimerExpiry( TAny* aPtr )
     {
     CScreensaverEngine* _this= STATIC_CAST(CScreensaverEngine*, aPtr);
     _this->KillTimer( _this->iPauseTimer );
-    _this->iPauseTimerStartedAfterPreview = EFalse;
+    _this->iPauseTimerStartedWithKeylockOff = EFalse;
 
     if ( _this->iSharedDataI->IsKeyguardOn() )
         {
@@ -797,7 +797,7 @@ void CScreensaverEngine::HandleKeyguardStateChanged( TBool aEnabled )
             {
             View()->UpdateAndRefresh();
             }
-        if ( !( iPauseTimerStartedAfterPreview && 
+        if ( !( iPauseTimerStartedWithKeylockOff && 
                 iPauseTimer && iPauseTimer->IsActive() ) )
             {
             StartScreenSaver();
@@ -805,7 +805,7 @@ void CScreensaverEngine::HandleKeyguardStateChanged( TBool aEnabled )
         }
     else
         {
-        StopScreenSaver();
+        StopScreenSaver( ETrue );
         }
     }
 

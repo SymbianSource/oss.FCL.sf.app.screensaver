@@ -36,6 +36,8 @@
 #include <MProfileEngine.h> // Profile engine API
 #include <MProfile.h>
 #include <NcnListDomainCRKeys.h>
+#include <hwrmdomainpskeys.h>                // KHWRMGripStatus
+#include <coreapplicationuisdomainpskeys.h>  // KCoreAppUIsAutolockStatus status
 
 #include "screensaverappui.h"
 #include "screensaverctrlmovingtext.h"
@@ -938,6 +940,27 @@ void CScreensaverSharedDataI::InvalidateActiveProfile()
         }
     }
 
+// -----------------------------------------------------------------------------
+// CScreensaverSharedDataI::IsCoverOpen
+// -----------------------------------------------------------------------------
+//
+TBool CScreensaverSharedDataI::IsCoverOpen()const
+    {
+    TInt value = EPSHWRMGripStatusUninitialized;
+    RProperty::Get( KPSUidHWRM, KHWRMGripStatus, value );
+    return ( value == EPSHWRMGripOpen );
+    }
+// -----------------------------------------------------------------------------
+// CScreensaverSharedDataI::IsAutoLockOpen
+// -----------------------------------------------------------------------------
+//
+TBool CScreensaverSharedDataI::IsAutoLockOpen() const
+    {
+    TInt value = 0;
+    RProperty::Get( KPSUidCoreApplicationUIs, KCoreAppUIsAutolockStatus, value );
+    return ( EAutolockOff != value && EAutolockStatusUninitialized != value );
+    }
+    
 // -----------------------------------------------------------------------------
 // CScreensaverSharedDataI::AppUi
 // -----------------------------------------------------------------------------

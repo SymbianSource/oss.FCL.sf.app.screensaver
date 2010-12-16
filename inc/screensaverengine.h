@@ -91,7 +91,7 @@ public:
     /**
     * Stops the screensaver
     */
-    void StopScreenSaver();
+    void StopScreenSaver( TBool aStoppedByKeylockOff = EFalse );
 
     /**
     * Starts the preview model
@@ -335,7 +335,7 @@ private:
     /**
     * Set if the pause timer was started when preview was stopped
     */
-    TBool iPauseTimerStartedAfterPreview;
+    TBool iPauseTimerStartedWithKeylockOff;
 
     /**
      * Asynchronous callback to start screensaver.
